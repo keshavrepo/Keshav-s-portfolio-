@@ -46,27 +46,6 @@
   }
 }
 
-@layer components {
-  /**
-   * Paper grain (SPEC-001 §7.5): a whisper, procedurally generated in
-   * `/public/textures`, exclusive to the paper world.
-   */
-  .texture-grain {
-    position: relative;
-  }
-
-  .texture-grain::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background-image: url('/textures/paper-grain.svg');
-    background-size: 180px 180px;
-    opacity: 0.05;
-    mix-blend-mode: multiply;
-  }
-}
-
 @layer utilities {
   /* Tabular lining numerals for every figure (figures must spot-check instantly, IR-35). */
   .font-figure {
@@ -83,13 +62,6 @@
   html[data-motion='reduced'] .motion-gated,
   html[data-lane='semantic'] .motion-gated {
     animation: none !important;
-  }
-
-  html[data-motion='reduced'] .enter-staggered,
-  html[data-lane='semantic'] .enter-staggered {
-    animation: none !important;
-    opacity: 1 !important;
-    transform: none !important;
   }
 
   /*
@@ -275,12 +247,6 @@
   @media (prefers-reduced-motion: reduce) {
     .motion-gated {
       animation: none !important;
-    }
-
-    .enter-staggered {
-      animation: none !important;
-      opacity: 1 !important;
-      transform: none !important;
     }
   }
 }
