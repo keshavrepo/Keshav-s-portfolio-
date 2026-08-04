@@ -18,6 +18,8 @@ export const JOURNEY_PHASES = [
   'universe',
   'engine-arriving',
   'engine',
+  'impact-arriving',
+  'impact',
 ];
 export type JourneyPhase = (typeof JOURNEY_PHASES)[number];
 
@@ -48,12 +50,11 @@ export const journeyBeats = {
 export const journeySettleMs = journeyBeats.arrivalBeginMs + journeyBeats.vistaRevealMs;
 
 /**
- * The shared runway: FOUR chapters of scroll in one uninterrupted strip —
- * the mind (z-rail), the process (case travel), the business universe
- * (systems unfold), and the decision engine (evidence, then consequences).
+ * The shared runway: FIVE chapters of scroll in one uninterrupted strip —
+ * the mind, the process, the universe, the engine, and the aftermath.
  * One runway, so scrolling never crosses a seam.
  */
-export const MIND_RUNWAY = '1280vh';
+export const MIND_RUNWAY = '1600vh';
 
 /** Scroll fraction of the mind third at which the map may re-form. */
 export const GRAMMAR_TRIGGER_P = 0.985;

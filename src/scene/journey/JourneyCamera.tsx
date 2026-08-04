@@ -41,6 +41,14 @@ const ENGINE_DEEP_Z = -68.5;
 const ENGINE_LOOK = new THREE.Vector3(0, 0.5, -79);
 
 /**
+ * The Impact Engine (SCENE-006): as the new shape settles, the camera
+ * releases its rise and eases back to the survey height — the vantage
+ * from which a whole transformed business reads at a glance.
+ */
+const IMPACT_VISTA = new THREE.Vector3(0.3, 2.9, -68.5);
+const IMPACT_DEEP_Z = -66.5;
+
+/**
  * The unified camera (SCENE-001 → 002 → 003). One camera for the whole
  * universe — it drifts, dives, repositions inside the dive's white, rails
  * deeper on scroll, and honors focused thoughts from their own side.
@@ -95,6 +103,24 @@ export function JourneyCamera() {
 
     const universeLive = chapter === 'universe' || chapter === 'universe-arriving';
     const engineLive = chapter === 'engine' || chapter === 'engine-arriving';
+    const impactLive = chapter === 'impact' || chapter === 'impact-arriving';
+
+    if (impactLive) {
+      // The aftermath: the camera descends from the decision's rise while
+      // the business re-forms below (v carries the recovery).
+      const v = THREE.MathUtils.clamp(scrollRef.current.v, 0, 1);
+      const eased = THREE.MathUtils.smoothstep(v, 0, 1);
+      const railZ = IMPACT_VISTA.z + (IMPACT_DEEP_Z - IMPACT_VISTA.z) * eased;
+      const railX = IMPACT_VISTA.x * (1 - eased) + (presence.active ? presence.x : 0) * 0.15;
+      const railY = IMPACT_VISTA.y - eased * 0.9 + (presence.active ? presence.y : 0) * 0.1;
+
+      const lambda = chapter === 'impact-arriving' ? 1.4 : 1.05;
+      perspective.position.x = THREE.MathUtils.damp(perspective.position.x, railX, lambda, d);
+      perspective.position.y = THREE.MathUtils.damp(perspective.position.y, railY, lambda, d);
+      perspective.position.z = THREE.MathUtils.damp(perspective.position.z, railZ, lambda, d);
+      perspective.lookAt(ENGINE_LOOK);
+      return;
+    }
 
     if (engineLive) {
       // The engine fourth: rise, hold the whole system in frame, and let

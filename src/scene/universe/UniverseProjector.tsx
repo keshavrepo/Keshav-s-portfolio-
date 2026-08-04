@@ -28,7 +28,7 @@ export function UniverseProjector() {
   });
 
   useFrame(({ camera, size }) => {
-    if (chapter !== 'universe') return;
+    if (chapter !== 'universe' && chapter !== 'impact') return;
 
     const world = scratch.current;
     const presence = presenceRef.current;
@@ -74,10 +74,16 @@ export function UniverseProjector() {
         }
       }
 
-      // Dynamic labels, earned: neighbors of the listened system, and
-      // downstream systems the travelling change has reached.
+      // Dynamic labels, earned: neighbors of the listened system (and, in
+      // the universe chapter only, downstream systems the travelling
+      // change has reached). In the aftermath the world is calm — names
+      // arrive through listening, not ripples.
       const wave = focusKey ? waveCache.current.waves.get(entity.id) : undefined;
-      const rippleLit = wave !== undefined && wave > 0 && rippleElapsed >= wave * RIPPLE_WAVE_MS;
+      const rippleLit =
+        chapter === 'universe' &&
+        wave !== undefined &&
+        wave > 0 &&
+        rippleElapsed >= wave * RIPPLE_WAVE_MS;
       const labelLit = !focusKey && entity.id !== hoverKey && neighbors.has(entity.id);
 
       const key = `en-${entity.id}`;

@@ -74,3 +74,22 @@ scene's brief. Recorded, not pursued. (Directive: execution over speculation.)
 19. **Static-lane suspense parity** — composed lanes commit instantly (no
     suspense hold). Deliberate: meaning never waits on frames; revisit only
     if a SPEC ever asks for timed beats outside the cinematic lane.
+
+## Recorded during SCENE-006
+
+20. **UniverseField world-mode state machine** — the field now holds pause,
+    script-wave, calm/morph, and hover windows as chapter-derived booleans.
+    A typed world-mode enum (grown/paused/consequences/recovery) would make
+    the modes exclusive by construction at the next scene that adds one.
+21. **Fractional chapter order** — impact sits at 5.5 to preserve the locked
+    orders. At the next doc touch point, formalize chapters (renumber or
+    adopt rank-independent ordering) with the SPECS' owners.
+22. **Overlay door-sync triplication** — Universe/Impact overlays share the
+    full door/whisper/label RAF sync. Extract a `useProjectedDoors` hook
+    alongside the projector unification (#7/#11).
+23. **Fog ownership** — JourneyCanvasR3F authors the fog, UniverseField
+    eases it during recovery. One fog owner (the camera rail system) would
+    prevent two writers when another world evolves its atmosphere.
+24. **Static-lane engine doorgate** — composed lanes gate the aftermath
+    behind a disabled button + note. If a future chapter needs gate-and-
+    proceed UX in documents, generalize the pattern.

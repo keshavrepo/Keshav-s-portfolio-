@@ -22,6 +22,7 @@ export const CHAPTER_IDS = [
   'problem-room',
   'universe',
   'decision-engine',
+  'impact',
   'future',
 ] as const;
 
@@ -62,6 +63,13 @@ export const CHAPTERS: readonly ChapterLock[] = [
     title: 'Chapter Five — The Decision Engine',
     beats: { suspense: motionBounds.suspense },
   },
+  /**
+   * SCENE-006 announced the Impact Engine between the locked decision-
+   * engine (5) and future (6). The fractional order preserves both locks —
+   * no existing entry moves; the chapter inserts and the order max law
+   * keeps working.
+   */
+  { id: 'impact', order: 5.5, slug: '/impact', title: 'The Impact Engine' },
   { id: 'future', order: 6, slug: '/future', title: 'Chapter Six — The Future' },
 ] as const;
 

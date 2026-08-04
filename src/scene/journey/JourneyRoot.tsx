@@ -15,6 +15,9 @@ import { EngineOverlay } from '@/scene/engine/EngineOverlay';
 import { EngineStatic } from '@/scene/engine/EngineStatic';
 import { GrammarOverlay } from '@/scene/grammar/GrammarOverlay';
 import { GrammarStatic } from '@/scene/grammar/GrammarStatic';
+import { ENGINE_LOCK_W, IMPACT_TRIGGER_W, impactBeats } from '@/scene/impact/impact-machine';
+import { ImpactOverlay } from '@/scene/impact/ImpactOverlay';
+import { ImpactStatic } from '@/scene/impact/ImpactStatic';
 import { MindscapeOverlay } from '@/scene/mindscape/MindscapeOverlay';
 import { MindscapeStatic } from '@/scene/mindscape/MindscapeStatic';
 import {
@@ -73,6 +76,9 @@ const CHAPTER_ANNOUNCEMENTS: Record<JourneyPhase, string> = {
   'engine-arriving': 'The universe holds its breath. Now the thinking is yours.',
   engine:
     'The Renewal Cliff. Evidence arrives as you scroll — read all four pieces, weigh three paths, and commit once. There is no undo, only consequences.',
+  'impact-arriving': 'The decision becomes weather. Watch what it changed.',
+  impact:
+    'The aftermath. Scroll to watch the business recover into its new shape; hover to hear what changed; select a system to read the reason.',
 };
 
 function controlLabelFor(phase: OpeningPhase): string {
@@ -93,6 +99,7 @@ export function JourneyRoot() {
   const { signals, motion } = useLane();
   const setStoreChapter = useJourneyStore((s) => s.setChapter);
   const markVisited = useJourneyStore((s) => s.markVisited);
+  const visitedAnchors = useJourneyStore((s) => s.visitedAnchors);
 
   const [phase, setPhase] = useState<OpeningPhase>('void');
   const [chapter, setChapter] = useState<JourneyPhase>('opening');
@@ -101,15 +108,17 @@ export function JourneyRoot() {
   const [gmCaption, setGmCaption] = useState(false);
   const [unCaption, setUnCaption] = useState(false);
   const [deCaption, setDeCaption] = useState(false);
+  const [imCaption, setImCaption] = useState(false);
   const [activeOrder, setActiveOrder] = useState(1);
   const [engineProgress, setEngineProgress] = useState({ evidence: 0, paths: false });
+  const [lessonsArrived, setLessonsArrived] = useState(false);
 
   const hostRef = useRef<HTMLDivElement>(null);
   const staticMindRef = useRef<HTMLDivElement>(null);
 
   const presenceRef = useRef<PointerPresence>({ x: 0, y: 0, dist: 1, active: false });
   const diveRef = useRef<DiveProgress>({ value: 0 });
-  const scrollRef = useRef({ p: 0, g: 0, u: 0, w: 0 });
+  const scrollRef = useRef({ p: 0, g: 0, u: 0, w: 0, v: 0 });
   const screenRef = useRef(new Map<string, ScreenAnchor>());
   const focusRef = useRef<{ hoverId: string | null; focusId: string | null; rippleAt: number }>({
     hoverId: null,
@@ -311,6 +320,30 @@ export function JourneyRoot() {
     schedule(() => setDeCaption(false), journeyBeats.vistaCaptionHoldMs);
   }, [chapter, setStoreChapter, markVisited, schedule]);
 
+  /* ── The aftermath: consequences finish propagating and the universe
+        begins its recovery into the shape the decision authored. ── */
+  const beginImpact = useCallback(() => {
+    // The handover law: every held focus releases as the weather begins.
+    focusRef.current.focusId = null;
+    focusRef.current.hoverId = null;
+    if (!cinematic) {
+      setChapter('impact');
+      return;
+    }
+    setImCaption(true);
+    setChapter((current) =>
+      current === 'impact-arriving' || current === 'impact' ? current : 'impact-arriving',
+    );
+    schedule(() => setChapter('impact'), impactBeats.impactRevealMs);
+  }, [cinematic, schedule]);
+
+  useEffect(() => {
+    if (chapter !== 'impact') return;
+    setStoreChapter('impact', 5.5);
+    markVisited('im:vista');
+    schedule(() => setImCaption(false), journeyBeats.vistaCaptionHoldMs);
+  }, [chapter, setStoreChapter, markVisited, schedule]);
+
   /* ── The first intentional act anywhere opens the Claim sequence. ── */
   useEffect(() => {
     if (chapter !== 'opening' || !cinematic || intentionalRef.current) return;
@@ -343,10 +376,10 @@ export function JourneyRoot() {
     };
   }, [phase, cinematic, chapter]);
 
-  /* ── Scroll moves deeper — one runway, four chapters. The mind, the
-        process, the universe, the engine — each earns the next. Impact
-        stays locked until the SCENE-003 decision is committed; the world
-        pauses for the visitor's own decision in the fourth. ── */
+  /* ── Scroll moves deeper — one runway, five chapters. Each earns the
+        next: impact stays locked until the SCENE-003 decision is
+        committed, and the aftermath waits behind the same law until the
+        visitor's own decision exists (ENGINE_LOCK_W). ── */
   useEffect(() => {
     const runwayChapters =
       chapter === 'mind' ||
@@ -355,7 +388,9 @@ export function JourneyRoot() {
       chapter === 'universe-arriving' ||
       chapter === 'universe' ||
       chapter === 'engine-arriving' ||
-      chapter === 'engine';
+      chapter === 'engine' ||
+      chapter === 'impact-arriving' ||
+      chapter === 'impact';
     if (!runwayChapters || !cinematic) return;
 
     let raf = 0;
@@ -368,19 +403,22 @@ export function JourneyRoot() {
         const runway = rect.height - window.innerHeight;
         const total = runway > 0 ? Math.min(1, Math.max(0, -rect.top / runway)) : 0;
 
-        const p = Math.min(1, total * 4);
-        let g = Math.min(1, Math.max(0, total * 4 - 1));
-        const committed = useJourneyStore
-          .getState()
-          .visitedAnchors.includes('gm:decision:committed');
+        const anchors = useJourneyStore.getState().visitedAnchors;
+        const p = Math.min(1, total * 5);
+        let g = Math.min(1, Math.max(0, total * 5 - 1));
+        const committed = anchors.includes('gm:decision:committed');
         if (!committed && g > GRAMMAR_LOCK_G) g = GRAMMAR_LOCK_G;
-        const u = Math.min(1, Math.max(0, total * 4 - 2));
-        const w = Math.min(1, Math.max(0, total * 4 - 3));
+        const u = Math.min(1, Math.max(0, total * 5 - 2));
+        let w = Math.min(1, Math.max(0, total * 5 - 3));
+        const decided = anchors.some((a) => a.startsWith('de:committed:'));
+        if (!decided && w > ENGINE_LOCK_W) w = ENGINE_LOCK_W;
+        const v = Math.min(1, Math.max(0, total * 5 - 4));
 
         scrollRef.current.p = p;
         scrollRef.current.g = g;
         scrollRef.current.u = u;
         scrollRef.current.w = w;
+        scrollRef.current.v = v;
 
         const order = Math.max(1, Math.min(10, Math.floor(g * 10 + 0.08)));
         setActiveOrder((current) => (current === order ? current : order));
@@ -390,10 +428,13 @@ export function JourneyRoot() {
         setEngineProgress((current) =>
           current.evidence === evidence && current.paths === paths ? current : { evidence, paths },
         );
+        const lessons = v >= impactBeats.lessonsThresholdV;
+        setLessonsArrived((current) => (current === lessons ? current : lessons));
 
         if (chapter === 'mind' && p >= GRAMMAR_TRIGGER_P) beginGrammar();
         if (chapter === 'grammar' && g >= UNIVERSE_TRIGGER_G) beginUniverse();
         if (chapter === 'universe' && u >= ENGINE_TRIGGER_U) beginEngine();
+        if (chapter === 'engine' && w >= IMPACT_TRIGGER_W) beginImpact();
       });
     };
 
@@ -403,7 +444,7 @@ export function JourneyRoot() {
       cancelAnimationFrame(raf);
       window.removeEventListener('scroll', onScroll);
     };
-  }, [chapter, cinematic, beginGrammar, beginUniverse, beginEngine]);
+  }, [chapter, cinematic, beginGrammar, beginUniverse, beginEngine, beginImpact]);
 
   const onControl = useCallback(() => {
     if (chapter !== 'opening' || phase === 'diving') return;
@@ -427,6 +468,7 @@ export function JourneyRoot() {
   const claimsLive = phaseAtLeast(phase, 'claim-one') && phase !== 'diving';
   const secondLineLive = phaseAtLeast(phase, 'claim-two') && phase !== 'diving';
   const identityLive = phaseAtLeast(phase, 'brightening') && phase !== 'diving';
+  const decisionCommitted = visitedAnchors.some((a) => a.startsWith('de:committed:'));
   const announcement =
     chapter === 'opening' ? (OPENING_ANNOUNCEMENTS[phase] ?? '') : CHAPTER_ANNOUNCEMENTS[chapter];
 
@@ -437,7 +479,9 @@ export function JourneyRoot() {
       chapter === 'universe-arriving' ||
       chapter === 'universe' ||
       chapter === 'engine-arriving' ||
-      chapter === 'engine') &&
+      chapter === 'engine' ||
+      chapter === 'impact-arriving' ||
+      chapter === 'impact') &&
     cinematic;
 
   const contextValue = {
@@ -461,6 +505,7 @@ export function JourneyRoot() {
         data-gm={gmCaption ? 'caption' : 'plain'}
         data-un={unCaption ? 'caption' : 'plain'}
         data-de={deCaption ? 'caption' : 'plain'}
+        data-im={imCaption ? 'caption' : 'plain'}
         className="relative flex flex-1 flex-col"
         style={runwayActive ? { height: MIND_RUNWAY } : undefined}
       >
@@ -538,6 +583,12 @@ export function JourneyRoot() {
             </div>
           ) : null}
 
+          {(chapter === 'impact-arriving' || chapter === 'impact') && cinematic ? (
+            <div className="absolute inset-0 z-20">
+              <ImpactOverlay lessonsArrived={lessonsArrived} />
+            </div>
+          ) : null}
+
           {chapter === 'mind' && !cinematic ? (
             <div ref={staticMindRef} className="relative z-10 flex-1 bg-ink-950">
               <MindscapeStatic />
@@ -586,6 +637,27 @@ export function JourneyRoot() {
           {chapter === 'engine' && !cinematic ? (
             <div className="relative z-10 flex-1 bg-ink-950">
               <EngineStatic />
+              <div className="flex flex-col items-center gap-2 px-gutter pb-section-y">
+                <button
+                  type="button"
+                  onClick={beginImpact}
+                  disabled={!decisionCommitted}
+                  className="inline-flex min-h-[44px] items-center rounded-full bg-ember-700 px-6 py-2 text-body-sm font-medium text-paper-50 transition-colors duration-ui ease-standard hover:bg-ember-600 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Witness what the decision became
+                </button>
+                {!decisionCommitted ? (
+                  <p className="text-caption text-paper-100/45">
+                    Commit one path above — the aftermath belongs to the committed.
+                  </p>
+                ) : null}
+              </div>
+            </div>
+          ) : null}
+
+          {chapter === 'impact' && !cinematic ? (
+            <div className="relative z-10 flex-1 bg-ink-950">
+              <ImpactStatic />
             </div>
           ) : null}
 

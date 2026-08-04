@@ -31,6 +31,8 @@ export interface UniverseUniforms {
   uAwake: { value: number };
   /** 1 = scripted consequence waves are driving (SCENE-005). */
   uScript: { value: number };
+  /** 0 → 1 as recovery completes: consequence-light becomes architecture (SCENE-006). */
+  uCalm: { value: number };
   uPointScale: { value: number };
 }
 
@@ -66,6 +68,7 @@ const ENTITY_VERTEX = /* glsl */ `
   uniform float uRipple;
   uniform float uAwake;
   uniform float uScript;
+  uniform float uCalm;
   uniform float uPointScale;
   varying float vAlpha;
   varying float vCore;
@@ -98,8 +101,12 @@ const ENTITY_VERTEX = /* glsl */ `
     } else if (uScript > 0.5) {
       // Consequences: scripted waves of the committed decision — the
       // world answers, stage by stage; everything else keeps breathing.
+      // As recovery completes (uCalm), the consequence-light settles into
+      // structure: architecture replaces glow. A listened system still
+      // answers, even while telling what the decision did to it.
       float downstream = aWave > 0.5 && aWave < 50.0 ? waveGlow(aWave) : 0.0;
-      alpha = 0.14 + 0.1 * breathe + downstream * 0.85;
+      downstream *= 1.0 - uCalm * 0.55;
+      alpha = 0.14 + 0.1 * breathe + uCalm * 0.06 + downstream * 0.85 + hovered * 0.4;
     } else {
       // Listening: the system answers, and its relationship neighborhood
       // leans in — that is the whole lesson of a hover.
@@ -127,6 +134,7 @@ const EDGE_VERTEX = /* glsl */ `
   uniform float uHoverId;
   uniform float uRipple;
   uniform float uScript;
+  uniform float uCalm;
   varying float vAlpha;
 
   float waveGlow(float wave) {
@@ -142,7 +150,8 @@ const EDGE_VERTEX = /* glsl */ `
       base = 0.035 + downstream * (0.5 + aCore * 0.2);
     } else if (uScript > 0.5) {
       float downstream = aWave > 0.5 && aWave < 50.0 ? waveGlow(aWave) : 0.0;
-      base = 0.05 + downstream * (0.45 + aCore * 0.2);
+      downstream *= 1.0 - uCalm * 0.55;
+      base = 0.05 + uCalm * 0.05 + downstream * (0.45 + aCore * 0.2);
     } else if (uHoverId > 0.5) {
       base += aHot * 0.42;
     }
@@ -234,6 +243,7 @@ export function createUniverseAssets(): UniverseAssets {
     uRipple: { value: 99 },
     uAwake: { value: 1 },
     uScript: { value: 0 },
+    uCalm: { value: 0 },
     uPointScale: { value: 400 },
   };
 

@@ -39,11 +39,7 @@ export default function GrammarField() {
     // as memory — the learned grammar, present and quiet (same law as the
     // mind world before it).
     const grammarLive = chapter === 'grammar' || chapter === 'grammar-arriving';
-    const afterLive =
-      chapter === 'universe' ||
-      chapter === 'universe-arriving' ||
-      chapter === 'engine' ||
-      chapter === 'engine-arriving';
+    const afterLive = chapter !== 'opening' && chapter !== 'arriving' && chapter !== 'mind';
     c.reveal = THREE.MathUtils.damp(c.reveal, grammarLive ? 1 : afterLive ? 0.14 : 0, 0.9, d);
     uniforms.uReveal.value = c.reveal;
 
