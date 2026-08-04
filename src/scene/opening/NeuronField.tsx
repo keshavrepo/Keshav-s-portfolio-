@@ -4,8 +4,9 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 
+import { useJourneyScene } from '@/scene/journey/journey-context';
+
 import { createNeuronAssets } from './neuron-assets';
-import { useOpeningScene } from './opening-context';
 import { phaseAtLeast, type OpeningPhase } from './opening-machine';
 
 /** Target glow per beat — the emotional score as numbers (SCENE-001). */
@@ -39,7 +40,7 @@ const PHASE_BEAT: Record<OpeningPhase, number> = {
 const FOV_Y_DEG = 35;
 
 export default function NeuronField() {
-  const { phase, presenceRef, diveRef } = useOpeningScene();
+  const { phase, presenceRef, diveRef } = useJourneyScene();
   const camera = useThree((state) => state.camera) as THREE.PerspectiveCamera;
 
   const assets = useMemo(() => createNeuronAssets(), []);

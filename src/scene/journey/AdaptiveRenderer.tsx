@@ -4,11 +4,12 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { useRef } from 'react';
 
 /**
- * Performance monitor (SCENE-001): a rolling two-second FPS window steps
- * the render resolution down toward DPR 1 when frames degrade — quality
- * degrades into softness, never into stutter (60 FPS is the promise; the
- * fallback is authored, not accidental). Changes are cheap and reversible
- * by the device, not by re-mounting anything.
+ * Performance monitor (SCENE-001), shared by the whole universe
+ * (SCENE-002): a rolling two-second FPS window steps the render resolution
+ * down toward DPR 1 when frames degrade — quality degrades into softness,
+ * never into stutter (60 FPS is the promise; the fallback is authored, not
+ * accidental). Changes are cheap and reversible by the device, not by
+ * re-mounting anything.
  */
 export function AdaptiveRenderer() {
   const get = useThree((state) => state.get);
@@ -33,7 +34,7 @@ export function AdaptiveRenderer() {
       setDpr(next);
       ref.degraded += 1;
       if (process.env.NODE_ENV !== 'production') {
-        console.info(`[opening] sustained ${fps.toFixed(0)}fps — stepping DPR to ${next}`);
+        console.info(`[journey] sustained ${fps.toFixed(0)}fps — stepping DPR to ${next}`);
       }
     }
   });

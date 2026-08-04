@@ -2,13 +2,14 @@
 
 import { useEffect, type MutableRefObject, type RefObject } from 'react';
 
-import type { PointerPresence } from './opening-context';
+import type { PointerPresence } from './journey-context';
 
 /**
- * Pointer presence (SCENE-001): the neuron's "nearby living system" sense.
- * Writes normalized coordinates into a ref at pointer cadence; the WebGL
- * layer applies the slow, noticed-not-startled response curve. Reactstate
- * is untouched, so moving the mouse costs zero renders.
+ * Pointer presence (SCENE-001), shared by the universe (SCENE-002): the
+ * "nearby living system" sense. Writes normalized coordinates into a ref at
+ * pointer cadence; the WebGL layer applies the slow, noticed-not-startled
+ * response curve. React state is untouched, so moving the mouse costs zero
+ * renders.
  */
 export function usePointerPresence(
   hostRef: RefObject<HTMLElement>,
@@ -42,5 +43,4 @@ export function usePointerPresence(
       host.removeEventListener('pointerleave', onLeave);
     };
   }, [hostRef, presenceRef]);
-  return undefined;
 }

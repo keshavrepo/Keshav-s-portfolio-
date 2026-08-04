@@ -27,6 +27,10 @@
     border-radius: 2px;
   }
 
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     html:focus-within {
       scroll-behavior: auto;
@@ -131,6 +135,51 @@
   /* No dead controls on the semantic floor: without JS there is no door. */
   html:not([data-js='1']) .op-control {
     display: none;
+  }
+
+  /* SCENE-002 — the vista caption: arrives with the world, recedes on time. */
+  .vista-line {
+    transition:
+      opacity 1400ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 1400ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  html[data-js='1'] .vista-line {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  [data-chapter='arriving'] .vista-line,
+  [data-chapter='mind'] .vista-line {
+    opacity: 1;
+    transform: none;
+  }
+
+  [data-chapter='mind'][data-vista='settled'] .vista-line {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  .mind-legend {
+    opacity: 0;
+    transition: opacity 1600ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  [data-chapter='mind'] .mind-legend {
+    opacity: 0.75;
+  }
+
+  [data-vista='settled'] .mind-legend {
+    opacity: 0.3;
+  }
+
+  /* The doors over each decision: rings only when listening. */
+  .mind-door:focus-visible,
+  .mind-door[data-listening='true'] {
+    outline: none;
+    box-shadow:
+      0 0 0 2px rgba(235, 169, 120, 0.85),
+      0 0 26px 6px rgba(235, 169, 120, 0.22);
   }
 
   @media (prefers-reduced-motion: reduce) {

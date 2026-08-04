@@ -1,7 +1,7 @@
 'use client';
 
 import { Canvas } from '@react-three/fiber';
-import type { RootState } from '@react-three/fiber';
+import type { CanvasProps, RootState } from '@react-three/fiber';
 import { useCallback, useState, type ReactNode } from 'react';
 
 interface CanvasHostProps {
@@ -19,6 +19,8 @@ interface CanvasHostProps {
    * the meaning itself (SCENE-001's neuron).
    */
   frameloop?: 'always' | 'demand';
+  /** Camera prescription for the scene; the journey owns one camera (SCENE-002). */
+  camera?: CanvasProps['camera'];
   onCreated?: (state: RootState) => void;
 }
 
@@ -32,6 +34,7 @@ export function CanvasHost({
   fallback,
   className,
   frameloop = 'demand',
+  camera,
   onCreated,
 }: CanvasHostProps) {
   const [contextLost, setContextLost] = useState(false);
@@ -56,6 +59,7 @@ export function CanvasHost({
       <Canvas
         frameloop={frameloop}
         dpr={[1, 2]}
+        camera={camera}
         gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
         onCreated={handleCreated}
       >

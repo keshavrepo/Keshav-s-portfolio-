@@ -35,7 +35,13 @@ export const CHAPTERS: readonly ChapterLock[] = [
     title: 'Opening — The Threshold',
     beats: { dive: motionBounds.dive },
   },
-  { id: 'mind', order: 1, slug: '/mind', title: 'Chapter One — Inside My Mind' },
+  {
+    id: 'mind',
+    order: 1,
+    slug: '/mind',
+    title: 'Chapter One — Inside My Mind',
+    beats: { vistaReveal: [1400, 1800] },
+  },
   { id: 'grammar', order: 2, slug: '/grammar', title: 'Chapter Two — Business Thinking Evolution' },
   {
     id: 'problem-room',

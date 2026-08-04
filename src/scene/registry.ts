@@ -25,6 +25,13 @@ const REGISTRY: readonly SceneManifest[] = [
     lanes: ['stills', 'express', 'semantic'],
     entranceBudgetMs: 1000,
   },
+  { chapterId: 'mind', host: 'webgl', lanes: ['cinematic'], entranceBudgetMs: 1800 },
+  {
+    chapterId: 'mind',
+    host: 'css',
+    lanes: ['stills', 'express', 'semantic'],
+    entranceBudgetMs: 1800,
+  },
 ] as const;
 
 export function getSceneManifests(chapterId: ChapterId): readonly SceneManifest[] {

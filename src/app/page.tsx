@@ -1,15 +1,15 @@
 import { SiteShell } from '@/components/layout/SiteShell';
-import { OpeningSection } from '@/scene/opening/OpeningSection';
+import { JourneySection } from '@/scene/journey/JourneySection';
 
 /**
- * `/` — the threshold (SPEC-003 Opening; SCENE-001). The ink surface is the
- * authored dark of the first contact; the semantic floor ships as HTML, so
- * the story's opening line exists before a single script runs (ER-1).
+ * `/` — the journey so far: the threshold (SCENE-001) diving seamlessly
+ * into the mind (SCENE-002). One universe, one clock; the semantic floor
+ * ships as HTML so the story exists before a single script runs (ER-1).
  */
 export default function HomePage() {
   return (
     <SiteShell surface="ink">
-      <OpeningSection />
+      <JourneySection />
     </SiteShell>
   );
 }
