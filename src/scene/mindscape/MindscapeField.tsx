@@ -36,7 +36,10 @@ export default function MindscapeField() {
 
     uniforms.uTime.value += d;
 
-    const revealTarget = chapter === 'opening' ? 0 : 1;
+    // The learned grammar stays as context: when the process world takes
+    // the stage, the constellation withdraws into memory — present, quiet.
+    const revealTarget =
+      chapter === 'opening' ? 0 : chapter === 'arriving' || chapter === 'mind' ? 1 : 0.14;
     c.reveal = THREE.MathUtils.damp(c.reveal, revealTarget, 0.8, d);
     uniforms.uReveal.value = c.reveal;
 

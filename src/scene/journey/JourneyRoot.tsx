@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  type CSSProperties,
-  type ReactNode,
-} from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { site } from '@/core/config/site';
 import { useLane } from '@/core/lane/lane-provider';
@@ -16,6 +9,8 @@ import { ensureGsapConfigured, gsap } from '@/core/motion/gsap';
 import { useJourneyStore } from '@/core/state/journey-store';
 import { motionDurations } from '@/design-system/tokens';
 import { cn } from '@/lib/cn';
+import { GrammarOverlay } from '@/scene/grammar/GrammarOverlay';
+import { GrammarStatic } from '@/scene/grammar/GrammarStatic';
 import { MindscapeOverlay } from '@/scene/mindscape/MindscapeOverlay';
 import { MindscapeStatic } from '@/scene/mindscape/MindscapeStatic';
 import {
@@ -26,15 +21,24 @@ import {
 } from '@/scene/opening/opening-machine';
 import { StaticNeuron } from '@/scene/opening/StaticNeuron';
 
+import { Gated } from './Gated';
 import {
   JourneySceneContext,
   type DiveProgress,
   type PointerPresence,
   type ScreenAnchor,
 } from './journey-context';
-import { MIND_RUNWAY, journeyBeats, journeySettleMs, type JourneyPhase } from './journey-machine';
+import {
+  GRAMMAR_LOCK_G,
+  GRAMMAR_TRIGGER_P,
+  MIND_RUNWAY,
+  journeyBeats,
+  journeySettleMs,
+  type JourneyPhase,
+} from './journey-machine';
 import { JourneyCanvas } from './JourneyCanvas';
 import { usePointerPresence } from './use-pointer-presence';
+import { useScheduler } from './use-scheduler';
 
 /** Opening beat narration (SPEC-003 OP beats); arrival narration is journey-level. */
 const OPENING_ANNOUNCEMENTS: Partial<Record<OpeningPhase, string>> = {
@@ -51,6 +55,10 @@ const CHAPTER_ANNOUNCEMENTS: Record<JourneyPhase, string> = {
   opening: '',
   arriving: 'The world inside the mind opens. Silent, and wide.',
   mind: 'You are exploring how a Business Analyst thinks. Scroll to move deeper; hover or tab to listen; select to expand a thought.',
+  'grammar-arriving':
+    'The map re-forms. Every idea follows one process — watch a real case travel it.',
+  grammar:
+    'Ten stations of thinking. Scroll to travel the case from observation to impact. Hover to listen; select to expand the reasoning; commit the decision to reveal the impact.',
 };
 
 function controlLabelFor(phase: OpeningPhase): string {
@@ -59,40 +67,13 @@ function controlLabelFor(phase: OpeningPhase): string {
   return 'Continue the Opening';
 }
 
-/** Gates one story element on its beat; no-JS and crawlers always see it. */
-function Gated({
-  live,
-  className,
-  style,
-  children,
-}: {
-  live: boolean;
-  className?: string;
-  style?: CSSProperties;
-  children: ReactNode;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    if (live) el.removeAttribute('aria-hidden');
-    else el.setAttribute('aria-hidden', 'true');
-  }, [live]);
-
-  return (
-    <div ref={ref} className={cn('op-gated', live && 'op-gated-live', className)} style={style}>
-      {children}
-    </div>
-  );
-}
-
 /**
- * The journey (SCENE-001 ∪ SCENE-002 …): one universe, one camera, one
- * clock. The Opening's machine runs until the dive; at the exact white of
- * the dive's overexposure the chapter changes and the mind world is already
- * there. There is no page transition and no loading feeling — by
- * architecture, not by adjective.
+ * The journey (SCENE-001 ∪ SCENE-002 ∪ SCENE-003 …): one universe, one
+ * camera, one clock. The Opening's machine runs until the dive; at the
+ * exact white of the dive's overexposure the chapter changes and the mind
+ * world is already there. At the settled end of the mind's runway the map
+ * re-forms into the process. There is no page transition and no loading
+ * feeling — by architecture, not by adjective.
  */
 export function JourneyRoot() {
   const { signals, motion } = useLane();
@@ -103,34 +84,27 @@ export function JourneyRoot() {
   const [chapter, setChapter] = useState<JourneyPhase>('opening');
   const [cinematic, setCinematic] = useState(false);
   const [vistaSettled, setVistaSettled] = useState(false);
+  const [gmCaption, setGmCaption] = useState(false);
+  const [activeOrder, setActiveOrder] = useState(1);
 
   const hostRef = useRef<HTMLDivElement>(null);
   const staticMindRef = useRef<HTMLDivElement>(null);
 
   const presenceRef = useRef<PointerPresence>({ x: 0, y: 0, dist: 1, active: false });
   const diveRef = useRef<DiveProgress>({ value: 0 });
-  const scrollRef = useRef({ p: 0 });
+  const scrollRef = useRef({ p: 0, g: 0 });
   const screenRef = useRef(new Map<string, ScreenAnchor>());
   const focusRef = useRef<{ hoverId: string | null; focusId: string | null }>({
     hoverId: null,
     focusId: null,
   });
 
-  const timersRef = useRef<number[]>([]);
   const intentionalRef = useRef(false);
   const ambientHeldRef = useRef(false);
 
   usePointerPresence(hostRef, presenceRef);
 
-  const clearTimers = useCallback(() => {
-    for (const timer of timersRef.current) window.clearTimeout(timer);
-    timersRef.current = [];
-  }, []);
-
-  const schedule = useCallback((fn: () => void, ms: number) => {
-    const id = window.setTimeout(fn, ms);
-    timersRef.current.push(id);
-  }, []);
+  const { schedule, clear: clearTimers } = useScheduler();
 
   /* ── Entrance: resolve the telling this visit deserves, after hydration. ── */
   useEffect(() => {
@@ -218,8 +192,6 @@ export function JourneyRoot() {
     }
   }, [phase, cinematic, schedule, markVisited]);
 
-  useEffect(() => () => clearTimers(), [clearTimers]);
-
   /* ── Arrival bookkeeping: anchors, the vista's hold, then it recedes. ── */
   useEffect(() => {
     if (chapter !== 'mind') return;
@@ -233,6 +205,28 @@ export function JourneyRoot() {
     if (chapter !== 'mind' || cinematic) return;
     staticMindRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, [chapter, cinematic]);
+
+  /* ── The map re-forms: the mind's settled runway ignites the process.
+        Cinematic tellings dissolve into it; composed ones step straight in. ── */
+  const beginGrammar = useCallback(() => {
+    setGmCaption(true);
+    if (!cinematic) {
+      setChapter('grammar');
+      setGmCaption(false);
+      return;
+    }
+    setChapter((current) =>
+      current === 'grammar-arriving' || current === 'grammar' ? current : 'grammar-arriving',
+    );
+    schedule(() => setChapter('grammar'), journeyBeats.grammarRevealMs);
+  }, [cinematic, schedule]);
+
+  useEffect(() => {
+    if (chapter !== 'grammar') return;
+    setStoreChapter('grammar', 2);
+    markVisited('gm:vista');
+    schedule(() => setGmCaption(false), journeyBeats.vistaCaptionHoldMs);
+  }, [chapter, setStoreChapter, markVisited, schedule]);
 
   /* ── The first intentional act anywhere opens the Claim sequence. ── */
   useEffect(() => {
@@ -266,9 +260,13 @@ export function JourneyRoot() {
     };
   }, [phase, cinematic, chapter]);
 
-  /* ── Scroll moves deeper (mind runway). Passive, ref-only, listener-free. ── */
+  /* ── Scroll moves deeper — one runway, two chapters. The mind occupies the
+        first half; the process re-forms at its settled end and owns the
+        second half. Impact stays locked until the decision is committed. ── */
   useEffect(() => {
-    if (chapter !== 'mind' || !cinematic) return;
+    const runwayChapters =
+      chapter === 'mind' || chapter === 'grammar-arriving' || chapter === 'grammar';
+    if (!runwayChapters || !cinematic) return;
 
     let raf = 0;
     const onScroll = () => {
@@ -278,7 +276,22 @@ export function JourneyRoot() {
         if (!host) return;
         const rect = host.getBoundingClientRect();
         const runway = rect.height - window.innerHeight;
-        scrollRef.current.p = runway > 0 ? Math.min(1, Math.max(0, -rect.top / runway)) : 0;
+        const total = runway > 0 ? Math.min(1, Math.max(0, -rect.top / runway)) : 0;
+
+        const p = Math.min(1, total * 2);
+        let g = Math.min(1, Math.max(0, total * 2 - 1));
+        const committed = useJourneyStore
+          .getState()
+          .visitedAnchors.includes('gm:decision:committed');
+        if (!committed && g > GRAMMAR_LOCK_G) g = GRAMMAR_LOCK_G;
+
+        scrollRef.current.p = p;
+        scrollRef.current.g = g;
+
+        const order = Math.max(1, Math.min(10, Math.floor(g * 10 + 0.08)));
+        setActiveOrder((current) => (current === order ? current : order));
+
+        if (chapter === 'mind' && p >= GRAMMAR_TRIGGER_P) beginGrammar();
       });
     };
 
@@ -288,7 +301,7 @@ export function JourneyRoot() {
       cancelAnimationFrame(raf);
       window.removeEventListener('scroll', onScroll);
     };
-  }, [chapter, cinematic]);
+  }, [chapter, cinematic, beginGrammar]);
 
   const onControl = useCallback(() => {
     if (chapter !== 'opening' || phase === 'diving') return;
@@ -315,7 +328,8 @@ export function JourneyRoot() {
   const announcement =
     chapter === 'opening' ? (OPENING_ANNOUNCEMENTS[phase] ?? '') : CHAPTER_ANNOUNCEMENTS[chapter];
 
-  const runwayActive = chapter === 'mind' && cinematic;
+  const runwayActive =
+    (chapter === 'mind' || chapter === 'grammar-arriving' || chapter === 'grammar') && cinematic;
 
   const contextValue = {
     phase,
@@ -334,6 +348,7 @@ export function JourneyRoot() {
         data-chapter={chapter}
         data-phase={phase}
         data-vista={vistaSettled ? 'settled' : 'fresh'}
+        data-gm={gmCaption ? 'caption' : 'plain'}
         className="relative flex flex-1 flex-col"
         style={runwayActive ? { height: MIND_RUNWAY } : undefined}
       >
@@ -384,15 +399,36 @@ export function JourneyRoot() {
             </section>
           ) : null}
 
-          {chapter !== 'opening' && cinematic ? (
+          {(chapter === 'arriving' || chapter === 'mind') && cinematic ? (
             <div className="absolute inset-0 z-20">
-              <MindscapeOverlay />
+              <MindscapeOverlay onBeginGrammar={beginGrammar} />
             </div>
           ) : null}
 
-          {chapter !== 'opening' && !cinematic ? (
+          {(chapter === 'grammar-arriving' || chapter === 'grammar') && cinematic ? (
+            <div className="absolute inset-0 z-20">
+              <GrammarOverlay activeOrder={activeOrder} />
+            </div>
+          ) : null}
+
+          {chapter === 'mind' && !cinematic ? (
             <div ref={staticMindRef} className="relative z-10 flex-1 bg-ink-950">
               <MindscapeStatic />
+              <div className="flex justify-center px-gutter pb-section-y">
+                <button
+                  type="button"
+                  onClick={beginGrammar}
+                  className="inline-flex min-h-[44px] items-center rounded-full bg-ember-700 px-6 py-2 text-body-sm font-medium text-paper-50 transition-colors duration-ui ease-standard hover:bg-ember-600"
+                >
+                  Follow one real decision through the process
+                </button>
+              </div>
+            </div>
+          ) : null}
+
+          {chapter === 'grammar' && !cinematic ? (
+            <div className="relative z-10 flex-1 bg-ink-950">
+              <GrammarStatic />
             </div>
           ) : null}
 

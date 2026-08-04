@@ -5,6 +5,8 @@ import { useCallback } from 'react';
 import * as THREE from 'three';
 
 import { CanvasHost } from '@/core/three/CanvasHost';
+import GrammarField from '@/scene/grammar/GrammarField';
+import { GrammarProjector } from '@/scene/grammar/GrammarProjector';
 import MindscapeField from '@/scene/mindscape/MindscapeField';
 import NeuronField from '@/scene/opening/NeuronField';
 import { StaticNeuron } from '@/scene/opening/StaticNeuron';
@@ -42,6 +44,12 @@ export default function JourneyCanvasR3F() {
         <Projector />
         {chapter !== 'mind' && <NeuronField />}
         {chapter !== 'opening' && <MindscapeField />}
+        {(chapter === 'grammar-arriving' || chapter === 'grammar') && (
+          <>
+            <GrammarProjector />
+            <GrammarField />
+          </>
+        )}
       </CanvasHost>
     </div>
   );

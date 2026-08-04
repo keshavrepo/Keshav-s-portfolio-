@@ -173,6 +173,23 @@
     opacity: 0.3;
   }
 
+  /* SCENE-003 — the process caption: arrives when the case begins, recedes on time. */
+  .gm-arrival {
+    transition:
+      opacity 1400ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 1400ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  html[data-js='1'] .gm-arrival {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  [data-gm='caption'] .gm-arrival {
+    opacity: 1;
+    transform: none;
+  }
+
   /* The doors over each decision: rings only when listening. */
   .mind-door:focus-visible,
   .mind-door[data-listening='true'] {

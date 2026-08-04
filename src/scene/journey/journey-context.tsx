@@ -42,8 +42,12 @@ export interface JourneySceneContextValue {
   chapter: JourneyPhase;
   presenceRef: MutableRefObject<PointerPresence>;
   diveRef: MutableRefObject<DiveProgress>;
-  /** Mind-chapter scroll progress, 0 = vista, 1 = deepest. */
-  scrollRef: MutableRefObject<{ p: number }>;
+  /**
+   * Runway progress, two chapters in one strip (SCENE-003 law):
+   * p = the mind half (0 vista → 1 deep), g = the process half
+   * (0 first station → 1 business impact).
+   */
+  scrollRef: MutableRefObject<{ p: number; g: number }>;
   /** Mindscape node id → live screen projection (written inside the canvas). */
   screenRef: MutableRefObject<Map<string, ScreenAnchor>>;
   /** Pointer hover/focus semantics for the mind world. */

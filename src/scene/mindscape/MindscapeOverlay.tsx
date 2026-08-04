@@ -14,14 +14,15 @@ import { MIND_NODES, getMindNode } from '@/scene/mindscape/mindscape-content';
  * card capped at the stage-beat law (IR-12). Positions sync per frame from
  * the canvas projector through direct style writes — never React renders.
  */
-export function MindscapeOverlay() {
-  const { screenRef, focusRef } = useJourneyScene();
+export function MindscapeOverlay({ onBeginGrammar }: { onBeginGrammar: () => void }) {
+  const { scrollRef, screenRef, focusRef } = useJourneyScene();
   const markVisited = useJourneyStore((s) => s.markVisited);
 
   const [focusId, setFocusId] = useState<string | null>(null);
   const doorRefs = useRef(new Map<string, HTMLButtonElement>());
   const whisperRefs = useRef(new Map<string, HTMLSpanElement>());
   const cardRef = useRef<HTMLDivElement>(null);
+  const onwardRef = useRef<HTMLButtonElement>(null);
   const focusIdRef = useRef<string | null>(null);
 
   /* Keep camera + shader informed of the focused thought. */
@@ -63,6 +64,12 @@ export function MindscapeOverlay() {
     let raf = 0;
     const sync = () => {
       raf = requestAnimationFrame(sync);
+      const onward = onwardRef.current;
+      if (onward) {
+        const near = scrollRef.current.p > 0.9;
+        onward.style.opacity = near ? '1' : '0';
+        onward.style.pointerEvents = near ? 'auto' : 'none';
+      }
       for (const node of MIND_NODES) {
         const anchor = screenRef.current.get(node.id);
         const door = doorRefs.current.get(node.id);
@@ -92,7 +99,7 @@ export function MindscapeOverlay() {
     };
     raf = requestAnimationFrame(sync);
     return () => cancelAnimationFrame(raf);
-  }, [screenRef]);
+  }, [screenRef, scrollRef]);
 
   const focused = focusId ? getMindNode(focusId) : null;
 
@@ -142,6 +149,20 @@ export function MindscapeOverlay() {
           {node.whisper}
         </span>
       ))}
+
+      {/* The onward door (SCENE-003): at the settled end of the map, the map
+          re-forms into the process — offered as an explicit act for keyboard
+          and touch parity. */}
+      <div className="absolute inset-x-0 bottom-16 z-20 flex justify-center">
+        <button
+          ref={onwardRef}
+          type="button"
+          onClick={onBeginGrammar}
+          className="inline-flex min-h-[44px] items-center rounded-full border border-ember-400/60 bg-ink-900/70 px-5 text-body-sm text-paper-100 opacity-0 backdrop-blur-md transition-opacity duration-state ease-standard hover:border-ember-300"
+        >
+          The process begins — follow a real decision
+        </button>
+      </div>
 
       {/* The quiet legend (S12 teaches touch; then it keeps its place). */}
       <div className="pointer-events-none absolute inset-x-0 bottom-6 z-10 flex justify-center">
