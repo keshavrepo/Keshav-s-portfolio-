@@ -5,6 +5,7 @@ import * as THREE from 'three';
 
 import { GRAMMAR_STAGES, getStage } from '@/scene/grammar/grammar-content';
 import { getMindNode } from '@/scene/mindscape/mindscape-content';
+import { getEntity } from '@/scene/universe/universe-content';
 
 import { useJourneyScene } from './journey-context';
 
@@ -19,6 +20,16 @@ const MIND_DEEP_Z = -5.5;
 /** The process world (SCENE-003): the camera keeps traveling forward. */
 const GRAMMAR_VISTA = new THREE.Vector3(0.4, 2.2, -16);
 const GRAMMAR_DEEP_Z = -54;
+
+/**
+ * The business universe (SCENE-004): the rail continues past the impact
+ * station — the decision becomes the heart the camera approaches, then
+ * the gaze widens to take in the whole system as complexity unfolds.
+ */
+const UNIVERSE_VISTA = new THREE.Vector3(-0.2, 1.5, -57);
+const UNIVERSE_DEEP_Z = -64;
+const UNIVERSE_LOOK_START = new THREE.Vector3(0, 1.3, -63); // the impact station
+const UNIVERSE_LOOK_END = new THREE.Vector3(0, 0.6, -80); // past the heart, into the backbone
 
 /**
  * The unified camera (SCENE-001 → 002 → 003). One camera for the whole
@@ -46,15 +57,21 @@ export function JourneyCamera() {
       return;
     }
 
-    // Focus travel: a chosen thought is honored from its own side.
+    // Focus travel: a chosen thought, station, or system is honored from
+    // its own side.
     if (focusId) {
       const isStation = focusId.startsWith('st-');
+      const isEntity = focusId.startsWith('en-');
       const target = new THREE.Vector3();
       const look = new THREE.Vector3();
       if (isStation) {
         const stage = getStage(focusId.slice(3));
         target.set(stage.position[0] * 0.82, stage.position[1] + 0.6, stage.position[2] + 2.9);
         look.set(stage.position[0] * 0.9, stage.position[1], stage.position[2]);
+      } else if (isEntity) {
+        const entity = getEntity(focusId.slice(3));
+        target.set(entity.position[0] * 0.82, entity.position[1] + 0.6, entity.position[2] + 3.1);
+        look.set(entity.position[0] * 0.9, entity.position[1], entity.position[2]);
       } else {
         const node = getMindNode(focusId);
         target.set(node.position[0] * 0.82, node.position[1] + 0.55, node.position[2] + 2.7);
@@ -64,6 +81,30 @@ export function JourneyCamera() {
       perspective.position.y = THREE.MathUtils.damp(perspective.position.y, target.y, 1.5, d);
       perspective.position.z = THREE.MathUtils.damp(perspective.position.z, target.z, 1.5, d);
       perspective.lookAt(look);
+      return;
+    }
+
+    const universeLive = chapter === 'universe' || chapter === 'universe-arriving';
+
+    if (universeLive) {
+      // The universe third: approach the newborn heart, then the gaze
+      // widens as scroll grows the system.
+      const u = THREE.MathUtils.clamp(scrollRef.current.u, 0, 1);
+      const eased = THREE.MathUtils.smoothstep(u, 0, 1);
+      const railZ = UNIVERSE_VISTA.z + (UNIVERSE_DEEP_Z - UNIVERSE_VISTA.z) * eased;
+      const railX = UNIVERSE_VISTA.x * (1 - eased) + (presence.active ? presence.x : 0) * 0.25;
+      const railY = UNIVERSE_VISTA.y - eased * 0.4 + (presence.active ? presence.y : 0) * 0.15;
+
+      const lambda = chapter === 'universe-arriving' ? 1.4 : 1.15;
+      perspective.position.x = THREE.MathUtils.damp(perspective.position.x, railX, lambda, d);
+      perspective.position.y = THREE.MathUtils.damp(perspective.position.y, railY, lambda, d);
+      perspective.position.z = THREE.MathUtils.damp(perspective.position.z, railZ, lambda, d);
+
+      perspective.lookAt(
+        UNIVERSE_LOOK_START.x + (UNIVERSE_LOOK_END.x - UNIVERSE_LOOK_START.x) * eased,
+        UNIVERSE_LOOK_START.y + (UNIVERSE_LOOK_END.y - UNIVERSE_LOOK_START.y) * eased,
+        UNIVERSE_LOOK_START.z + (UNIVERSE_LOOK_END.z - UNIVERSE_LOOK_START.z) * eased,
+      );
       return;
     }
 

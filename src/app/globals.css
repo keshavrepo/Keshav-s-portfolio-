@@ -190,6 +190,23 @@
     transform: none;
   }
 
+  /* SCENE-004 — the universe caption: arrives as the heart ignites, recedes on time. */
+  .un-arrival {
+    transition:
+      opacity 1400ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 1400ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  html[data-js='1'] .un-arrival {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  [data-un='caption'] .un-arrival {
+    opacity: 1;
+    transform: none;
+  }
+
   /* The doors over each decision: rings only when listening. */
   .mind-door:focus-visible,
   .mind-door[data-listening='true'] {

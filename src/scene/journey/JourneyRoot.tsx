@@ -20,6 +20,8 @@ import {
   type OpeningPhase,
 } from '@/scene/opening/opening-machine';
 import { StaticNeuron } from '@/scene/opening/StaticNeuron';
+import { UniverseOverlay } from '@/scene/universe/UniverseOverlay';
+import { UniverseStatic } from '@/scene/universe/UniverseStatic';
 
 import { Gated } from './Gated';
 import {
@@ -32,6 +34,7 @@ import {
   GRAMMAR_LOCK_G,
   GRAMMAR_TRIGGER_P,
   MIND_RUNWAY,
+  UNIVERSE_TRIGGER_G,
   journeyBeats,
   journeySettleMs,
   type JourneyPhase,
@@ -59,6 +62,10 @@ const CHAPTER_ANNOUNCEMENTS: Record<JourneyPhase, string> = {
     'The map re-forms. Every idea follows one process — watch a real case travel it.',
   grammar:
     'Ten stations of thinking. Scroll to travel the case from observation to impact. Hover to listen; select to expand the reasoning; commit the decision to reveal the impact.',
+  'universe-arriving':
+    'The committed decision takes root. One promise, kept, begins to grow into a whole business.',
+  universe:
+    'The business universe. Scroll to grow its systems; hover to reveal a relationship; select a system to isolate it and watch the change travel downstream.',
 };
 
 function controlLabelFor(phase: OpeningPhase): string {
@@ -85,6 +92,7 @@ export function JourneyRoot() {
   const [cinematic, setCinematic] = useState(false);
   const [vistaSettled, setVistaSettled] = useState(false);
   const [gmCaption, setGmCaption] = useState(false);
+  const [unCaption, setUnCaption] = useState(false);
   const [activeOrder, setActiveOrder] = useState(1);
 
   const hostRef = useRef<HTMLDivElement>(null);
@@ -92,11 +100,12 @@ export function JourneyRoot() {
 
   const presenceRef = useRef<PointerPresence>({ x: 0, y: 0, dist: 1, active: false });
   const diveRef = useRef<DiveProgress>({ value: 0 });
-  const scrollRef = useRef({ p: 0, g: 0 });
+  const scrollRef = useRef({ p: 0, g: 0, u: 0 });
   const screenRef = useRef(new Map<string, ScreenAnchor>());
-  const focusRef = useRef<{ hoverId: string | null; focusId: string | null }>({
+  const focusRef = useRef<{ hoverId: string | null; focusId: string | null; rippleAt: number }>({
     hoverId: null,
     focusId: null,
+    rippleAt: 0,
   });
 
   const intentionalRef = useRef(false);
@@ -209,6 +218,10 @@ export function JourneyRoot() {
   /* ── The map re-forms: the mind's settled runway ignites the process.
         Cinematic tellings dissolve into it; composed ones step straight in. ── */
   const beginGrammar = useCallback(() => {
+    // A chapter handover releases any held focus — otherwise the camera
+    // would keep honoring a world that has left the stage.
+    focusRef.current.focusId = null;
+    focusRef.current.hoverId = null;
     setGmCaption(true);
     if (!cinematic) {
       setChapter('grammar');
@@ -226,6 +239,31 @@ export function JourneyRoot() {
     setStoreChapter('grammar', 2);
     markVisited('gm:vista');
     schedule(() => setGmCaption(false), journeyBeats.vistaCaptionHoldMs);
+  }, [chapter, setStoreChapter, markVisited, schedule]);
+
+  /* ── The decision takes root: at the process's committed end the world
+        grows into the business it was always about (SCENE-004). ── */
+  const beginUniverse = useCallback(() => {
+    // Same handover law: the process world's focus releases as its
+    // committed decision becomes the universe's heart.
+    focusRef.current.focusId = null;
+    focusRef.current.hoverId = null;
+    if (!cinematic) {
+      setChapter('universe');
+      return;
+    }
+    setUnCaption(true);
+    setChapter((current) =>
+      current === 'universe-arriving' || current === 'universe' ? current : 'universe-arriving',
+    );
+    schedule(() => setChapter('universe'), journeyBeats.universeRevealMs);
+  }, [cinematic, schedule]);
+
+  useEffect(() => {
+    if (chapter !== 'universe') return;
+    setStoreChapter('universe', 4);
+    markVisited('un:vista');
+    schedule(() => setUnCaption(false), journeyBeats.vistaCaptionHoldMs);
   }, [chapter, setStoreChapter, markVisited, schedule]);
 
   /* ── The first intentional act anywhere opens the Claim sequence. ── */
@@ -260,12 +298,18 @@ export function JourneyRoot() {
     };
   }, [phase, cinematic, chapter]);
 
-  /* ── Scroll moves deeper — one runway, two chapters. The mind occupies the
-        first half; the process re-forms at its settled end and owns the
-        second half. Impact stays locked until the decision is committed. ── */
+  /* ── Scroll moves deeper — one runway, three chapters. The mind occupies
+        the first third; the process re-forms at its settled end and owns
+        the second third; the committed decision grows the universe in the
+        third. Impact stays locked until the decision is committed, and
+        the universe itself waits for that commitment. ── */
   useEffect(() => {
     const runwayChapters =
-      chapter === 'mind' || chapter === 'grammar-arriving' || chapter === 'grammar';
+      chapter === 'mind' ||
+      chapter === 'grammar-arriving' ||
+      chapter === 'grammar' ||
+      chapter === 'universe-arriving' ||
+      chapter === 'universe';
     if (!runwayChapters || !cinematic) return;
 
     let raf = 0;
@@ -278,20 +322,23 @@ export function JourneyRoot() {
         const runway = rect.height - window.innerHeight;
         const total = runway > 0 ? Math.min(1, Math.max(0, -rect.top / runway)) : 0;
 
-        const p = Math.min(1, total * 2);
-        let g = Math.min(1, Math.max(0, total * 2 - 1));
+        const p = Math.min(1, total * 3);
+        let g = Math.min(1, Math.max(0, total * 3 - 1));
         const committed = useJourneyStore
           .getState()
           .visitedAnchors.includes('gm:decision:committed');
         if (!committed && g > GRAMMAR_LOCK_G) g = GRAMMAR_LOCK_G;
+        const u = Math.min(1, Math.max(0, total * 3 - 2));
 
         scrollRef.current.p = p;
         scrollRef.current.g = g;
+        scrollRef.current.u = u;
 
         const order = Math.max(1, Math.min(10, Math.floor(g * 10 + 0.08)));
         setActiveOrder((current) => (current === order ? current : order));
 
         if (chapter === 'mind' && p >= GRAMMAR_TRIGGER_P) beginGrammar();
+        if (chapter === 'grammar' && g >= UNIVERSE_TRIGGER_G) beginUniverse();
       });
     };
 
@@ -301,7 +348,7 @@ export function JourneyRoot() {
       cancelAnimationFrame(raf);
       window.removeEventListener('scroll', onScroll);
     };
-  }, [chapter, cinematic, beginGrammar]);
+  }, [chapter, cinematic, beginGrammar, beginUniverse]);
 
   const onControl = useCallback(() => {
     if (chapter !== 'opening' || phase === 'diving') return;
@@ -329,7 +376,12 @@ export function JourneyRoot() {
     chapter === 'opening' ? (OPENING_ANNOUNCEMENTS[phase] ?? '') : CHAPTER_ANNOUNCEMENTS[chapter];
 
   const runwayActive =
-    (chapter === 'mind' || chapter === 'grammar-arriving' || chapter === 'grammar') && cinematic;
+    (chapter === 'mind' ||
+      chapter === 'grammar-arriving' ||
+      chapter === 'grammar' ||
+      chapter === 'universe-arriving' ||
+      chapter === 'universe') &&
+    cinematic;
 
   const contextValue = {
     phase,
@@ -349,6 +401,7 @@ export function JourneyRoot() {
         data-phase={phase}
         data-vista={vistaSettled ? 'settled' : 'fresh'}
         data-gm={gmCaption ? 'caption' : 'plain'}
+        data-un={unCaption ? 'caption' : 'plain'}
         className="relative flex flex-1 flex-col"
         style={runwayActive ? { height: MIND_RUNWAY } : undefined}
       >
@@ -411,6 +464,12 @@ export function JourneyRoot() {
             </div>
           ) : null}
 
+          {(chapter === 'universe-arriving' || chapter === 'universe') && cinematic ? (
+            <div className="absolute inset-0 z-20">
+              <UniverseOverlay />
+            </div>
+          ) : null}
+
           {chapter === 'mind' && !cinematic ? (
             <div ref={staticMindRef} className="relative z-10 flex-1 bg-ink-950">
               <MindscapeStatic />
@@ -429,6 +488,21 @@ export function JourneyRoot() {
           {chapter === 'grammar' && !cinematic ? (
             <div className="relative z-10 flex-1 bg-ink-950">
               <GrammarStatic />
+              <div className="flex justify-center px-gutter pb-section-y">
+                <button
+                  type="button"
+                  onClick={beginUniverse}
+                  className="inline-flex min-h-[44px] items-center rounded-full bg-ember-700 px-6 py-2 text-body-sm font-medium text-paper-50 transition-colors duration-ui ease-standard hover:bg-ember-600"
+                >
+                  Watch the decision become a business
+                </button>
+              </div>
+            </div>
+          ) : null}
+
+          {chapter === 'universe' && !cinematic ? (
+            <div className="relative z-10 flex-1 bg-ink-950">
+              <UniverseStatic />
             </div>
           ) : null}
 

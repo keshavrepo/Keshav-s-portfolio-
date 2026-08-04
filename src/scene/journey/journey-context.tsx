@@ -43,15 +43,21 @@ export interface JourneySceneContextValue {
   presenceRef: MutableRefObject<PointerPresence>;
   diveRef: MutableRefObject<DiveProgress>;
   /**
-   * Runway progress, two chapters in one strip (SCENE-003 law):
-   * p = the mind half (0 vista → 1 deep), g = the process half
-   * (0 first station → 1 business impact).
+   * Runway progress, three chapters in one strip (SCENE-003 → SCENE-004
+   * law): p = the mind third (0 vista → 1 deep), g = the process third
+   * (0 first station → 1 business impact), u = the universe third
+   * (0 the heart ignites → 1 full complexity).
    */
-  scrollRef: MutableRefObject<{ p: number; g: number }>;
+  scrollRef: MutableRefObject<{ p: number; g: number; u: number }>;
   /** Mindscape node id → live screen projection (written inside the canvas). */
   screenRef: MutableRefObject<Map<string, ScreenAnchor>>;
-  /** Pointer hover/focus semantics for the mind world. */
-  focusRef: MutableRefObject<{ hoverId: string | null; focusId: string | null }>;
+  /**
+   * Pointer hover/focus semantics. `rippleAt` (performance.now ms) is the
+   * shared clock of the universe's cause–effect ripple: the WebGL field
+   * and the DOM labels both derive what is lit from this instant, so the
+   * two layers can never disagree about a travelling change.
+   */
+  focusRef: MutableRefObject<{ hoverId: string | null; focusId: string | null; rippleAt: number }>;
 }
 
 export const JourneySceneContext = createContext<JourneySceneContextValue | null>(null);

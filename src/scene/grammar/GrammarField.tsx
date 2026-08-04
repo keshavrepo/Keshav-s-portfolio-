@@ -35,8 +35,12 @@ export default function GrammarField() {
 
     uniforms.uTime.value += d;
 
+    // When the business universe takes the stage, the process world stays
+    // as memory — the learned grammar, present and quiet (same law as the
+    // mind world before it).
     const grammarLive = chapter === 'grammar' || chapter === 'grammar-arriving';
-    c.reveal = THREE.MathUtils.damp(c.reveal, grammarLive ? 1 : 0, 0.9, d);
+    const universeLive = chapter === 'universe' || chapter === 'universe-arriving';
+    c.reveal = THREE.MathUtils.damp(c.reveal, grammarLive ? 1 : universeLive ? 0.14 : 0, 0.9, d);
     uniforms.uReveal.value = c.reveal;
 
     // Grammar progress: the second half of the shared runway.

@@ -8,13 +8,23 @@ import { openingBeats } from '@/scene/opening/opening-machine';
  * Chapters hand over inside authored covers: the dive's overexposed white
  * (opening→mind) and the settled end of a runway (mind→grammar).
  */
-export const JOURNEY_PHASES = ['opening', 'arriving', 'mind', 'grammar-arriving', 'grammar'];
+export const JOURNEY_PHASES = [
+  'opening',
+  'arriving',
+  'mind',
+  'grammar-arriving',
+  'grammar',
+  'universe-arriving',
+  'universe',
+];
 export type JourneyPhase = (typeof JOURNEY_PHASES)[number];
 
 /** Locked Chapter One beat envelope (SPEC-003 M.2): the vista reveals calm. */
 const VISTA_REVEAL_MS = 1600;
 /** Chapter Two's arrival: the map re-forms, the case ignites (M.2). */
 const GRAMMAR_REVEAL_MS = 1400;
+/** Chapter Four's arrival: the committed decision takes root as a heart. */
+const UNIVERSE_REVEAL_MS = 1400;
 
 /**
  * Arrival begins the moment the dive's overexposure peaks (dive + warm-out),
@@ -25,6 +35,7 @@ export const journeyBeats = {
   arrivalBeginMs: motionDurations.dive + openingBeats.warmOutMs,
   vistaRevealMs: VISTA_REVEAL_MS,
   grammarRevealMs: GRAMMAR_REVEAL_MS,
+  universeRevealMs: UNIVERSE_REVEAL_MS,
   /** the vista caption holds, then recedes into the small legend */
   vistaCaptionHoldMs: 4200,
 } as const;
@@ -32,16 +43,23 @@ export const journeyBeats = {
 export const journeySettleMs = journeyBeats.arrivalBeginMs + journeyBeats.vistaRevealMs;
 
 /**
- * The shared runway: TWO chapters of scroll in one uninterrupted strip —
- * the first half is the mind (z-rail), the second is the process
- * (case travel). One runway, so scrolling never crosses a seam.
+ * The shared runway: THREE chapters of scroll in one uninterrupted strip —
+ * the first third is the mind (z-rail), the second is the process
+ * (case travel), the third is the business universe (systems unfold).
+ * One runway, so scrolling never crosses a seam.
  */
-export const MIND_RUNWAY = '640vh';
+export const MIND_RUNWAY = '960vh';
 
-/** Scroll fraction of the mind half at which the map may re-form. */
+/** Scroll fraction of the mind third at which the map may re-form. */
 export const GRAMMAR_TRIGGER_P = 0.985;
 /** Impact stays locked until the decision is committed (earned law). */
 export const GRAMMAR_LOCK_G = 0.94;
+/**
+ * Scroll fraction of the process third at which the decision takes root.
+ * With the commitment lock, this can only be reached after the visitor
+ * commits — the universe is quite literally grown by the decision.
+ */
+export const UNIVERSE_TRIGGER_G = 0.985;
 
 if (process.env.NODE_ENV !== 'production') {
   const bound = getChapter('mind').beats?.vistaReveal;

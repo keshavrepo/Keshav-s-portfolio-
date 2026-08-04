@@ -10,6 +10,8 @@ import { GrammarProjector } from '@/scene/grammar/GrammarProjector';
 import MindscapeField from '@/scene/mindscape/MindscapeField';
 import NeuronField from '@/scene/opening/NeuronField';
 import { StaticNeuron } from '@/scene/opening/StaticNeuron';
+import UniverseField from '@/scene/universe/UniverseField';
+import { UniverseProjector } from '@/scene/universe/UniverseProjector';
 
 import { AdaptiveRenderer } from './AdaptiveRenderer';
 import { useJourneyScene } from './journey-context';
@@ -44,10 +46,19 @@ export default function JourneyCanvasR3F() {
         <Projector />
         {chapter !== 'mind' && <NeuronField />}
         {chapter !== 'opening' && <MindscapeField />}
-        {(chapter === 'grammar-arriving' || chapter === 'grammar') && (
+        {(chapter === 'grammar-arriving' ||
+          chapter === 'grammar' ||
+          chapter === 'universe-arriving' ||
+          chapter === 'universe') && (
           <>
             <GrammarProjector />
             <GrammarField />
+          </>
+        )}
+        {(chapter === 'universe-arriving' || chapter === 'universe') && (
+          <>
+            <UniverseProjector />
+            <UniverseField />
           </>
         )}
       </CanvasHost>

@@ -140,7 +140,7 @@ export function GrammarStatic() {
       </ol>
 
       <p className="text-eyebrow uppercase text-paper-100/40">
-        The process is complete · the problem room follows in the next chapter
+        The process is complete · the business it serves wakes in the next chapter
       </p>
     </section>
   );
