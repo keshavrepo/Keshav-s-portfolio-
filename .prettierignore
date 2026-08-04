@@ -1,0 +1,10 @@
+node_modules/
+.next/
+coverage/
+src/design-system/fonts/
+
+# The locked specification documents are the law; tooling never rewrites them.
+CREATIVE_VISION.md
+AUDIENCE_INTELLIGENCE.md
+STORY_BIBLE.md
+EXPERIENCE_ARCHITECTURE.md

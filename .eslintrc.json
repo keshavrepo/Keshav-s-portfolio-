@@ -1,0 +1,22 @@
+{
+  "extends": ["next/core-web-vitals", "prettier"],
+  "ignorePatterns": [
+    ".next/",
+    "node_modules/",
+    "coverage/",
+    "src/design-system/fonts/",
+    "next-env.d.ts"
+  ],
+  "rules": {
+    "import/order": [
+      "error",
+      {
+        "groups": ["builtin", "external", "internal", "parent", "sibling", "index"],
+        "pathGroups": [{ "pattern": "@/**", "group": "internal", "position": "after" }],
+        "newlines-between": "always",
+        "alphabetize": { "order": "asc", "caseInsensitive": true }
+      }
+    ],
+    "no-console": ["error", { "allow": ["warn", "error", "info"] }]
+  }
+}

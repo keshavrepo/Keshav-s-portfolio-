@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    color-scheme: light;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-paper-50 font-text text-ink-900 antialiased;
+    font-feature-settings:
+      'kern' 1,
+      'liga' 1,
+      'calt' 1;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    @apply bg-ember-200 text-ink-900;
+  }
+
+  :focus-visible {
+    outline: 2px solid theme('colors.ember.600');
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html:focus-within {
+      scroll-behavior: auto;
+    }
+
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /**
+   * Paper grain (SPEC-001 §7.5): a whisper, procedurally generated in
+   * `/public/textures`, exclusive to the paper world.
+   */
+  .texture-grain {
+    position: relative;
+  }
+
+  .texture-grain::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: url('/textures/paper-grain.svg');
+    background-size: 180px 180px;
+    opacity: 0.05;
+    mix-blend-mode: multiply;
+  }
+}
+
+@layer utilities {
+  /* Tabular lining numerals for every figure (figures must spot-check instantly, IR-35). */
+  .font-figure {
+    font-feature-settings:
+      'tnum' 1,
+      'lnum' 1;
+  }
+
+  /*
+   * Motion gates (ARCHITECTURE §18): the resolved policy lives on <html>
+   * as data attributes; animated layers obey without component branching,
+   * and the same law holds with JavaScript entirely absent.
+   */
+  html[data-motion='reduced'] .motion-gated,
+  html[data-lane='semantic'] .motion-gated {
+    animation: none !important;
+  }
+
+  html[data-motion='reduced'] .enter-staggered,
+  html[data-lane='semantic'] .enter-staggered {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .motion-gated {
+      animation: none !important;
+    }
+
+    .enter-staggered {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  }
+}
