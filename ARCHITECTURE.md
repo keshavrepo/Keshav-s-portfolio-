@@ -9,18 +9,18 @@ This is the technical constitution of the project. It defines systems, not scene
 
 ## 0. Stack Contract
 
-| Concern | Choice | Version policy |
-|---|---|---|
-| Framework | Next.js (App Router, React Server Components default) | 14.2.x, pinned |
-| Language | TypeScript, `strict` | 5.6.x |
-| Styling | Tailwind CSS driven by design tokens | 3.4.x |
-| 3D / WebGL | Three.js via `@react-three/fiber` | three 0.169.x / fiber 8.x |
-| Motion | GSAP under a project conductor (below) | 3.12.x |
-| State | Zustand (persisted, partialized) | 4.5.x |
-| Env validation | Zod, parsed at module import | 3.23.x |
-| Tooling | ESLint 8 + Prettier 3 + Husky 9 + lint-staged + commitlint | pinned |
+| Concern        | Choice                                                     | Version policy            |
+| -------------- | ---------------------------------------------------------- | ------------------------- |
+| Framework      | Next.js (App Router, React Server Components default)      | 14.2.x, pinned            |
+| Language       | TypeScript, `strict`                                       | 5.6.x                     |
+| Styling        | Tailwind CSS driven by design tokens                       | 3.4.x                     |
+| 3D / WebGL     | Three.js via `@react-three/fiber`                          | three 0.169.x / fiber 8.x |
+| Motion         | GSAP under a project conductor (below)                     | 3.12.x                    |
+| State          | Zustand (persisted, partialized)                           | 4.5.x                     |
+| Env validation | Zod, parsed at module import                               | 3.23.x                    |
+| Tooling        | ESLint 8 + Prettier 3 + Husky 9 + lint-staged + commitlint | pinned                    |
 
-Rationale, one line each: App Router gives server-first rendering so **first paint carries the authored pulse in under a second on mid-tier mobile (ER-1)**; RSC default keeps JavaScript off the text layer; Tailwind is a styling *delivery* mechanism only — all values come from tokens, so no raw hex or duration ever appears in a component; Zustand is small enough to never threaten the latency budget (ER-3, <100ms reactivity); pinned versions keep builds deterministic.
+Rationale, one line each: App Router gives server-first rendering so **first paint carries the authored pulse in under a second on mid-tier mobile (ER-1)**; RSC default keeps JavaScript off the text layer; Tailwind is a styling _delivery_ mechanism only — all values come from tokens, so no raw hex or duration ever appears in a component; Zustand is small enough to never threaten the latency budget (ER-3, <100ms reactivity); pinned versions keep builds deterministic.
 
 ---
 
@@ -62,7 +62,7 @@ Import direction is one-way: `app/components → core/design-system/scene → li
 Three layers, strictly separated:
 
 1. **Tokens** (`src/design-system/tokens/*`) — pure, dependency-free TypeScript data. Same objects are consumed by `tailwind.config.ts` (compile-time) and by runtime code (GSAP, JS timers). One number, one place.
-2. **Tailwind theme** — a *projection* of tokens into utility classes (`tailwind.config.ts`). Contributions to the Tailwind config beyond token projection are forbidden.
+2. **Tailwind theme** — a _projection_ of tokens into utility classes (`tailwind.config.ts`). Contributions to the Tailwind config beyond token projection are forbidden.
 3. **Primitives** (`src/components/*`) — components compose token utilities; they never invent values. Any value not expressible as a token exists exactly once, inline, with a code comment citing the spec line that licenses it.
 
 ## 3. Typography Token System
@@ -94,20 +94,20 @@ Law: body text is always ink-on-paper or paper-on-ink (contrast ≥ 12:1, exceed
 
 `tokens/motion.ts` — durations, legal bounds, and easings, with the SPEC-003/004 legacy numbers encoded as constants (verified unchanged):
 
-| Token | Value | Locked bound | Source |
-|---|---|---|---|
-| `react` | 90ms | < 100ms reactivity | ER-3 |
-| `ui` | 200ms | interface states | foundation |
-| `state` | 420ms | scene state change | foundation |
-| `enter` | 720ms | text/scene entrances | foundation |
-| `pulse` | 900ms | resting heartbeat tempo | ER-4 |
-| `dive` | 2000ms | 1800–2400ms ingress | ER-5 |
-| `suspense` | 1750ms | 1500–2000ms full-motion suspension | S59/R-59 |
-| `entryWrap` | 1800ms | ≤ 2000ms | T8/ER |
-| `corridor` | 4500ms | 3000–6000ms return corridor | T8 |
-| First paint | ≤ 1000ms | authored pulse on first paint | ER-1 |
-| Express lane | 45,000–60,000ms | total | SPEC-003 |
-| Full journey | 720,000–1,200,000ms | 12–20 min | SPEC-003 |
+| Token        | Value               | Locked bound                       | Source     |
+| ------------ | ------------------- | ---------------------------------- | ---------- |
+| `react`      | 90ms                | < 100ms reactivity                 | ER-3       |
+| `ui`         | 200ms               | interface states                   | foundation |
+| `state`      | 420ms               | scene state change                 | foundation |
+| `enter`      | 720ms               | text/scene entrances               | foundation |
+| `pulse`      | 900ms               | resting heartbeat tempo            | ER-4       |
+| `dive`       | 2000ms              | 1800–2400ms ingress                | ER-5       |
+| `suspense`   | 1750ms              | 1500–2000ms full-motion suspension | S59/R-59   |
+| `entryWrap`  | 1800ms              | ≤ 2000ms                           | T8/ER      |
+| `corridor`   | 4500ms              | 3000–6000ms return corridor        | T8         |
+| First paint  | ≤ 1000ms            | authored pulse on first paint      | ER-1       |
+| Express lane | 45,000–60,000ms     | total                              | SPEC-003   |
+| Full journey | 720,000–1,200,000ms | 12–20 min                          | SPEC-003   |
 
 Easings: `signal-out` (`cubic-bezier(0.16,1,0.3,1)`, GSAP `expo.out` — resolves like noise snapping to signal), `resolve-in`, `standard`. Every token has both a CSS and a GSAP spelling.
 
@@ -122,16 +122,16 @@ Easings: `signal-out` (`cubic-bezier(0.16,1,0.3,1)`, GSAP `expo.out` — resolve
 
 - **Chapter locks** (`src/scene/chapters.ts`) — the seven locked chapters as typed data: id, order, stable slug, title, and chapter-specific locked beats (e.g., the Decision Engine's 1500–2000ms full-motion suspension). Story data lives here so no scene component ever hardcodes a story fact.
 - **Stable routes** — chapter slugs are permanent promises (NR-14): `/`, `/mind`, `/grammar`, `/problem-room`, `/universe`, `/decision-engine`, `/future`.
-- **Registry** (`src/scene/registry.ts`) — scenes register a manifest: chapter id, host (`css` | `canvas2d` | `webgl`), supported lanes, entrance budget. The Opening's first-light (semantic-first) layer is registered now; richer hosts register as scenes ship.
+- **Registry** (`src/scene/registry.ts`) — scenes register a manifest per host: chapter id, host (`css` | `canvas2d` | `webgl`), supported lanes, entrance budget. The Opening (SCENE-001) registers a WebGL host for the cinematic telling and a CSS host for the other three; further chapters register as their scene phases land.
 - **Lifecycle** (`src/core/three/scene-lifecycle.ts`) — every scene implements `mount / activate / deactivate / dispose`. Nothing renders that cannot also be cleanly torn down (traversal replays causally — NR-61).
 - **Consequence law (new for production)** — a control ships only when its consequence works. The Opening therefore ships its first-light frame (pulse + locked Claim + identity mark) with zero dead affordances; the dive gesture arrives with its destination in the scene phase.
 
 ## 9. Three.js Architecture
 
 - **Capability probe** (`core/three/capability.ts`) — cached, SSR-safe detection of WebGL1/2, texture ceiling, plus device signals (`deviceMemory`, `hardwareConcurrency`, `saveData`, `effectiveType`). Pure functions; no side effects at import.
-- **CanvasHost** (`core/three/CanvasHost.tsx`) — the only sanctioned way to mount R3F: `frameloop="demand"` (battery respect, ER-85), DPR clamped to [1,2], high-performance power preference, alpha for compositing over authored surfaces. **Context loss is handled, not survived**: on `webglcontextlost` the host swaps to its `fallback` subtree (the stills lane) instead of a dead rectangle.
+- **CanvasHost** (`core/three/CanvasHost.tsx`) — the only sanctioned way to mount R3F: `frameloop="demand"` by default (battery respect, ER-85), DPR clamped to [1,2], high-performance power preference, alpha for compositing over authored surfaces; `frameloop="always"` is reserved for living scenes whose motion is the meaning (SCENE-001's neuron). **Context loss is handled, not survived**: on `webglcontextlost` the host swaps to its `fallback` subtree (the stills lane) instead of a dead rectangle.
 - **Loading** — canvases load via `next/dynamic` with `ssr: false`; the server never ships Three.js to the text layer.
-- **Rule** — Three.js renders *meaning made spatial* (pulse, neuron, circuits, braid, engine). It is decorative-hostile by constitution.
+- **Rule** — Three.js renders _meaning made spatial_ (pulse, neuron, circuits, braid, engine). It is decorative-hostile by constitution.
 
 ## 10. GSAP Integration Architecture
 
@@ -185,7 +185,8 @@ RootLayout (server: fonts, metadata, JSON-LD)
     └── SiteShell (skip-link, SiteHeader, <main>, SiteFooter)
         └── route pages (server) → domain components
             ├── Text primitives (claim/display/headline/lede/body/eyebrow/caption/figure)
-            ├── opening/OpeningFrame → opening/Pulse (pure CSS, server-rendered)
+            ├── scenes mount as domain roots (scene/opening/OpeningSection → OpeningExperience
+            │   → dynamic NeuronCanvas → NeuronField + CameraRig + AdaptiveRenderer)
             └── clients only where state/touch exists (LaneSwitcher, CanvasHost, Providers)
 ```
 
@@ -200,15 +201,15 @@ Client components are leaves, not trunks. Server components compose; client comp
 
 ## 19. File Naming Convention
 
-| Artifact | Convention | Example |
-|---|---|---|
-| React component files | PascalCase, matching export | `SiteShell.tsx`, `CanvasHost.tsx` |
-| Multi-export component families | one file, named exports | `Text.tsx` exports `Text` with variants |
-| Utilities / hooks / stores / tokens | kebab-case | `motion-policy.ts`, `use-reduced-motion.ts`, `journey-store.ts` |
-| App Router files | Next file conventions, untouched | `layout.tsx`, `robots.ts` |
-| Scripts | kebab-case `.mjs` | `sync-fonts.mjs` |
-| Documents | SCREAMING_CASE | `ARCHITECTURE.md` |
-| Test files (when added) | `*.test.ts(x)` beside source | — |
+| Artifact                            | Convention                       | Example                                                         |
+| ----------------------------------- | -------------------------------- | --------------------------------------------------------------- |
+| React component files               | PascalCase, matching export      | `SiteShell.tsx`, `CanvasHost.tsx`                               |
+| Multi-export component families     | one file, named exports          | `Text.tsx` exports `Text` with variants                         |
+| Utilities / hooks / stores / tokens | kebab-case                       | `motion-policy.ts`, `use-reduced-motion.ts`, `journey-store.ts` |
+| App Router files                    | Next file conventions, untouched | `layout.tsx`, `robots.ts`                                       |
+| Scripts                             | kebab-case `.mjs`                | `sync-fonts.mjs`                                                |
+| Documents                           | SCREAMING_CASE                   | `ARCHITECTURE.md`                                               |
+| Test files (when added)             | `*.test.ts(x)` beside source     | —                                                               |
 
 Enforced at review; the layout is small enough that drift is visible in a glance.
 
@@ -230,4 +231,4 @@ Enforced at review; the layout is small enough that drift is visible in a glance
 
 ## What this foundation deliberately does not contain
 
-Scene implementations for `/mind` … `/future`, the dive interaction, OG artwork, and authored chapter copy beyond the locked Claim lines — all scheduled for the scene/content SPEC phases, in that order. Their hosts, budgets, tokens, lanes, and laws are ready here.
+Scene implementations for `/mind` … `/future` and authored chapter copy beyond the locked Claim lines — the Opening itself ships in SCENE-001 (dive included); the remaining chapters follow in scene phases, in chapter order. Their hosts, budgets, tokens, lanes, and laws are ready here.

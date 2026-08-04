@@ -88,6 +88,51 @@
     transform: none !important;
   }
 
+  /*
+   * SCENE-001 story gating: with JavaScript, story elements wait in the dark
+   * for their beat; without it, every word is present (semantic floor).
+   * The machine toggles .op-gated-live on each element's beat.
+   */
+  .op-gated {
+    transition:
+      opacity 1200ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 1200ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  html[data-js='1'] .op-gated:not(.op-gated-live) {
+    opacity: 0;
+    transform: translateY(10px);
+    visibility: hidden;
+  }
+
+  /* During the dive the words leave first, quickly. */
+  [data-phase='diving'] .op-gated {
+    opacity: 0;
+    transition-duration: 400ms;
+    visibility: hidden;
+  }
+
+  /* Warm overexposure capping the dive; idles transparent. */
+  .op-warm {
+    opacity: 0;
+    transition: opacity 500ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  [data-phase='diving'] .op-warm {
+    opacity: 1;
+    transition-delay: 1450ms;
+  }
+
+  [data-phase='afterglow'] .op-warm {
+    opacity: 0;
+    transition-duration: 700ms;
+  }
+
+  /* No dead controls on the semantic floor: without JS there is no door. */
+  html:not([data-js='1']) .op-control {
+    display: none;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .motion-gated {
       animation: none !important;

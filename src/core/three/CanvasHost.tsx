@@ -13,15 +13,27 @@ interface CanvasHostProps {
    */
   fallback: ReactNode;
   className?: string;
+  /**
+   * `demand` renders on invalidation only (the default, battery-respecting
+   * choice, ER-85). `always` is reserved for living scenes whose motion is
+   * the meaning itself (SCENE-001's neuron).
+   */
+  frameloop?: 'always' | 'demand';
   onCreated?: (state: RootState) => void;
 }
 
 /**
  * The only sanctioned way to mount a 3D scene (ARCHITECTURE §9): demand
- * frameloop (battery respect, ER-85), DPR clamped, high-performance power
- * preference, alpha so the scene composites over authored surfaces.
+ * frameloop by default (battery respect, ER-85), DPR clamped, high-performance
+ * power preference, alpha so the scene composites over authored surfaces.
  */
-export function CanvasHost({ children, fallback, className, onCreated }: CanvasHostProps) {
+export function CanvasHost({
+  children,
+  fallback,
+  className,
+  frameloop = 'demand',
+  onCreated,
+}: CanvasHostProps) {
   const [contextLost, setContextLost] = useState(false);
 
   const handleCreated = useCallback(
@@ -42,7 +54,7 @@ export function CanvasHost({ children, fallback, className, onCreated }: CanvasH
   return (
     <div className={className}>
       <Canvas
-        frameloop="demand"
+        frameloop={frameloop}
         dpr={[1, 2]}
         gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
         onCreated={handleCreated}

@@ -3,10 +3,10 @@ import type { Lane } from '@/core/lane/types';
 import type { ChapterId } from './chapters';
 
 /**
- * Scene registry (ARCHITECTURE §8). A scene announces its host, its lanes,
- * and its entrance budget here. Richer hosts register as scene phases land;
- * the Opening's first-light layer is live now and all seven chapters have
- * their semantic-tier slots reserved by slug in `chapters.ts`.
+ * Scene registry (ARCHITECTURE §8). A scene announces its hosts per lane,
+ * its entrance budget, and its chapter. The Opening is live (SCENE-001):
+ * WebGL for the cinematic telling, CSS for the other three. Richer chapters
+ * register as their scene phases land.
  */
 export type SceneHost = 'css' | 'canvas2d' | 'webgl';
 
@@ -18,16 +18,17 @@ export interface SceneManifest {
 }
 
 const REGISTRY: readonly SceneManifest[] = [
+  { chapterId: 'opening', host: 'webgl', lanes: ['cinematic'], entranceBudgetMs: 1000 },
   {
     chapterId: 'opening',
     host: 'css',
-    lanes: ['cinematic', 'stills', 'express', 'semantic'],
+    lanes: ['stills', 'express', 'semantic'],
     entranceBudgetMs: 1000,
   },
 ] as const;
 
-export function getSceneManifest(chapterId: ChapterId): SceneManifest | undefined {
-  return REGISTRY.find((entry) => entry.chapterId === chapterId);
+export function getSceneManifests(chapterId: ChapterId): readonly SceneManifest[] {
+  return REGISTRY.filter((entry) => entry.chapterId === chapterId);
 }
 
 export function listScenes(): readonly SceneManifest[] {

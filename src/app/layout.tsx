@@ -58,6 +58,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang={site.lang} className={`${displayFont.variable} ${textFont.variable}`}>
       <body>
+        {/* Story gating contract (SCENE-001): flags that JavaScript is live
+            before first paint, so elements never flash before the machine
+            takes over. No-JS keeps the complete semantic floor. */}
+        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.dataset.js='1'" }} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
