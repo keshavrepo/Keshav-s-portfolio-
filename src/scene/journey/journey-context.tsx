@@ -43,11 +43,12 @@ export interface JourneySceneContextValue {
   presenceRef: MutableRefObject<PointerPresence>;
   diveRef: MutableRefObject<DiveProgress>;
   /**
-   * Runway progress, five chapters in one strip (SCENE-003 → SCENE-006
+   * Runway progress, six chapters in one strip (SCENE-003 → SCENE-007
    * law): p = mind, g = process, u = universe, w = engine, v = the
-   * aftermath (0 the decision becomes weather → 1 the new shape holds).
+   * aftermath, f = the future (0 the architecture opens → 1 the last
+   * words hold and the runway — the story — ends).
    */
-  scrollRef: MutableRefObject<{ p: number; g: number; u: number; w: number; v: number }>;
+  scrollRef: MutableRefObject<{ p: number; g: number; u: number; w: number; v: number; f: number }>;
   /** Mindscape node id → live screen projection (written inside the canvas). */
   screenRef: MutableRefObject<Map<string, ScreenAnchor>>;
   /**

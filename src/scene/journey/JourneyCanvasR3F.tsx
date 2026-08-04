@@ -53,7 +53,9 @@ export default function JourneyCanvasR3F() {
           chapter === 'engine-arriving' ||
           chapter === 'engine' ||
           chapter === 'impact-arriving' ||
-          chapter === 'impact') && (
+          chapter === 'impact' ||
+          chapter === 'future-arriving' ||
+          chapter === 'future') && (
           <>
             <GrammarProjector />
             <GrammarField />
@@ -64,7 +66,9 @@ export default function JourneyCanvasR3F() {
           chapter === 'engine-arriving' ||
           chapter === 'engine' ||
           chapter === 'impact-arriving' ||
-          chapter === 'impact') && (
+          chapter === 'impact' ||
+          chapter === 'future-arriving' ||
+          chapter === 'future') && (
           <>
             <UniverseProjector />
             <UniverseField />

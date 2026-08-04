@@ -49,6 +49,16 @@ const IMPACT_VISTA = new THREE.Vector3(0.3, 2.9, -68.5);
 const IMPACT_DEEP_Z = -66.5;
 
 /**
+ * The Future (SCENE-007): the final camera movement — a slow approach to
+ * the first light of the Opening, still burning where the heart settled.
+ * The look eases from the whole system onto the heart itself, until the
+ * frame holds only what the journey began with.
+ */
+const FUTURE_VISTA = new THREE.Vector3(0, 2.0, -66.5);
+const FUTURE_DEEP = new THREE.Vector3(0, 1.35, -69.5);
+const HEART_LOOK = new THREE.Vector3(0, 1.0, -74);
+
+/**
  * The unified camera (SCENE-001 → 002 → 003). One camera for the whole
  * universe — it drifts, dives, repositions inside the dive's white, rails
  * deeper on scroll, and honors focused thoughts from their own side.
@@ -104,6 +114,33 @@ export function JourneyCamera() {
     const universeLive = chapter === 'universe' || chapter === 'universe-arriving';
     const engineLive = chapter === 'engine' || chapter === 'engine-arriving';
     const impactLive = chapter === 'impact' || chapter === 'impact-arriving';
+    const futureLive = chapter === 'future' || chapter === 'future-arriving';
+
+    if (futureLive) {
+      // The final approach: the camera leans toward the visitor one last
+      // time (presence, like the first night) while the look narrows to
+      // the heart.
+      const f = THREE.MathUtils.clamp(scrollRef.current.f, 0, 1);
+      const eased = THREE.MathUtils.smoothstep(f, 0, 1);
+      const reach = 0.2 + eased * 0.35;
+      const railX = (presence.active ? presence.x : 0) * reach;
+      const railY =
+        FUTURE_VISTA.y +
+        (FUTURE_DEEP.y - FUTURE_VISTA.y) * eased +
+        (presence.active ? presence.y : 0) * reach * 0.5;
+      const railZ = FUTURE_VISTA.z + (FUTURE_DEEP.z - FUTURE_VISTA.z) * eased;
+
+      const lambda = chapter === 'future-arriving' ? 1.3 : 0.9;
+      perspective.position.x = THREE.MathUtils.damp(perspective.position.x, railX, lambda, d);
+      perspective.position.y = THREE.MathUtils.damp(perspective.position.y, railY, lambda, d);
+      perspective.position.z = THREE.MathUtils.damp(perspective.position.z, railZ, lambda, d);
+      perspective.lookAt(
+        ENGINE_LOOK.x + (HEART_LOOK.x - ENGINE_LOOK.x) * eased,
+        ENGINE_LOOK.y + (HEART_LOOK.y - ENGINE_LOOK.y) * eased,
+        ENGINE_LOOK.z + (HEART_LOOK.z - ENGINE_LOOK.z) * eased,
+      );
+      return;
+    }
 
     if (impactLive) {
       // The aftermath: the camera descends from the decision's rise while

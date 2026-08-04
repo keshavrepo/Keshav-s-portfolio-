@@ -60,6 +60,13 @@ const REGISTRY: readonly SceneManifest[] = [
     lanes: ['stills', 'express', 'semantic'],
     entranceBudgetMs: 1400,
   },
+  { chapterId: 'future', host: 'webgl', lanes: ['cinematic'], entranceBudgetMs: 1400 },
+  {
+    chapterId: 'future',
+    host: 'css',
+    lanes: ['stills', 'express', 'semantic'],
+    entranceBudgetMs: 1400,
+  },
 ] as const;
 
 export function getSceneManifests(chapterId: ChapterId): readonly SceneManifest[] {

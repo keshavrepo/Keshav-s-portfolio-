@@ -28,7 +28,7 @@ export function UniverseProjector() {
   });
 
   useFrame(({ camera, size }) => {
-    if (chapter !== 'universe' && chapter !== 'impact') return;
+    if (chapter !== 'universe' && chapter !== 'impact' && chapter !== 'future') return;
 
     const world = scratch.current;
     const presence = presenceRef.current;

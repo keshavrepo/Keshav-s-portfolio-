@@ -33,6 +33,8 @@ export interface UniverseUniforms {
   uScript: { value: number };
   /** 0 → 1 as recovery completes: consequence-light becomes architecture (SCENE-006). */
   uCalm: { value: number };
+  /** The bookend (SCENE-007): how strongly the heartbeat outlives its world. */
+  uHeartHold: { value: number };
   uPointScale: { value: number };
 }
 
@@ -69,6 +71,7 @@ const ENTITY_VERTEX = /* glsl */ `
   uniform float uAwake;
   uniform float uScript;
   uniform float uCalm;
+  uniform float uHeartHold;
   uniform float uPointScale;
   varying float vAlpha;
   varying float vCore;
@@ -113,7 +116,11 @@ const ENTITY_VERTEX = /* glsl */ `
       alpha += hovered * 0.55 + aAdj * 0.35 * (0.6 + 0.4 * breathe);
     }
     alpha += heart * beat * 0.18 * (0.25 + 0.75 * uAwake);
-    vAlpha = alpha * built * uReveal;
+    // The bookend: when the architecture dissolves into the final words,
+    // the heartbeat alone is not bound by the world's fade — the light
+    // the journey began with outlives everything it grew.
+    float held = heart * uHeartHold * (0.45 + beat * 0.55) * built;
+    vAlpha = alpha * built * uReveal + held;
     vCore = 1.0;
 
     vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
@@ -244,6 +251,7 @@ export function createUniverseAssets(): UniverseAssets {
     uAwake: { value: 1 },
     uScript: { value: 0 },
     uCalm: { value: 0 },
+    uHeartHold: { value: 0 },
     uPointScale: { value: 400 },
   };
 

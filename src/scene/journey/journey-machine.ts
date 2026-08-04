@@ -20,6 +20,8 @@ export const JOURNEY_PHASES = [
   'engine',
   'impact-arriving',
   'impact',
+  'future-arriving',
+  'future',
 ];
 export type JourneyPhase = (typeof JOURNEY_PHASES)[number];
 
@@ -31,6 +33,11 @@ const GRAMMAR_REVEAL_MS = 1400;
 const UNIVERSE_REVEAL_MS = 1400;
 /** Chapter Five's arrival: the universe holds its breath for the visitor. */
 const ENGINE_REVEAL_MS = 1400;
+/**
+ * The final chapter's arrival (SCENE-007): not an opening — a dissolve.
+ * The architecture does not arrive; it leaves.
+ */
+const FUTURE_REVEAL_MS = 1400;
 
 /**
  * Arrival begins the moment the dive's overexposure peaks (dive + warm-out),
@@ -43,6 +50,7 @@ export const journeyBeats = {
   grammarRevealMs: GRAMMAR_REVEAL_MS,
   universeRevealMs: UNIVERSE_REVEAL_MS,
   engineRevealMs: ENGINE_REVEAL_MS,
+  futureRevealMs: FUTURE_REVEAL_MS,
   /** the vista caption holds, then recedes into the small legend */
   vistaCaptionHoldMs: 4200,
 } as const;
@@ -50,11 +58,12 @@ export const journeyBeats = {
 export const journeySettleMs = journeyBeats.arrivalBeginMs + journeyBeats.vistaRevealMs;
 
 /**
- * The shared runway: FIVE chapters of scroll in one uninterrupted strip —
- * the mind, the process, the universe, the engine, and the aftermath.
- * One runway, so scrolling never crosses a seam.
+ * The shared runway: SIX chapters of scroll in one uninterrupted strip —
+ * the mind, the process, the universe, the engine, the aftermath, and
+ * the future. One runway, so scrolling never crosses a seam; the strip
+ * ends where the last words hold.
  */
-export const MIND_RUNWAY = '1600vh';
+export const MIND_RUNWAY = '1920vh';
 
 /** Scroll fraction of the mind third at which the map may re-form. */
 export const GRAMMAR_TRIGGER_P = 0.985;
@@ -66,6 +75,8 @@ export const GRAMMAR_LOCK_G = 0.94;
  * commits — the universe is quite literally grown by the decision.
  */
 export const UNIVERSE_TRIGGER_G = 0.985;
+/** Scroll fraction of the aftermath at which the universe may open. */
+export const FUTURE_TRIGGER_V = 0.985;
 
 if (process.env.NODE_ENV !== 'production') {
   const bound = getChapter('mind').beats?.vistaReveal;

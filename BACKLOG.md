@@ -93,3 +93,17 @@ scene's brief. Recorded, not pursued. (Directive: execution over speculation.)
 24. **Static-lane engine doorgate** — composed lanes gate the aftermath
     behind a disabled button + note. If a future chapter needs gate-and-
     proceed UX in documents, generalize the pattern.
+
+## Recorded during SCENE-007
+
+25. **ARCHITECTURE.md complete-journey refresh** — with all six story
+    chapters live, the §8/§17 refresh (entries #1/#9) now covers the full
+    braid: seven rails, six runway segments, four worlds on one canvas.
+    One doc pass remains, scheduled with the SPEC owners.
+26. **Return-visit re-entry** — the store remembers every anchor
+    (EG-51) but traversal always restarts at the opening. A ceremonial
+    "continue from the future" reprise door belongs to the traversal
+    phase, post-finale hardening.
+27. **End-of-runway footer** — after the final frame the document simply
+    ends. If a colophon (build credits, last-updated) is desired, author
+    it as story text in a future pass — never as furniture.

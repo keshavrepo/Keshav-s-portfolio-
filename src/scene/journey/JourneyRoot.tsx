@@ -13,6 +13,9 @@ import { DECISION_EVIDENCE } from '@/scene/engine/decision-content';
 import { ENGINE_TRIGGER_U, engineBeats } from '@/scene/engine/decision-machine';
 import { EngineOverlay } from '@/scene/engine/EngineOverlay';
 import { EngineStatic } from '@/scene/engine/EngineStatic';
+import { futureBeatFor } from '@/scene/future/future-content';
+import { FutureOverlay } from '@/scene/future/FutureOverlay';
+import { FutureStatic } from '@/scene/future/FutureStatic';
 import { GrammarOverlay } from '@/scene/grammar/GrammarOverlay';
 import { GrammarStatic } from '@/scene/grammar/GrammarStatic';
 import { ENGINE_LOCK_W, IMPACT_TRIGGER_W, impactBeats } from '@/scene/impact/impact-machine';
@@ -38,6 +41,7 @@ import {
   type ScreenAnchor,
 } from './journey-context';
 import {
+  FUTURE_TRIGGER_V,
   GRAMMAR_LOCK_G,
   GRAMMAR_TRIGGER_P,
   MIND_RUNWAY,
@@ -79,6 +83,8 @@ const CHAPTER_ANNOUNCEMENTS: Record<JourneyPhase, string> = {
   'impact-arriving': 'The decision becomes weather. Watch what it changed.',
   impact:
     'The aftermath. Scroll to watch the business recover into its new shape; hover to hear what changed; select a system to read the reason.',
+  'future-arriving': 'The architecture opens. The light you began with is still there.',
+  future: 'The last words, said slowly. Every business has problems.',
 };
 
 function controlLabelFor(phase: OpeningPhase): string {
@@ -112,13 +118,14 @@ export function JourneyRoot() {
   const [activeOrder, setActiveOrder] = useState(1);
   const [engineProgress, setEngineProgress] = useState({ evidence: 0, paths: false });
   const [lessonsArrived, setLessonsArrived] = useState(false);
+  const [futureBeat, setFutureBeat] = useState(-1);
 
   const hostRef = useRef<HTMLDivElement>(null);
   const staticMindRef = useRef<HTMLDivElement>(null);
 
   const presenceRef = useRef<PointerPresence>({ x: 0, y: 0, dist: 1, active: false });
   const diveRef = useRef<DiveProgress>({ value: 0 });
-  const scrollRef = useRef({ p: 0, g: 0, u: 0, w: 0, v: 0 });
+  const scrollRef = useRef({ p: 0, g: 0, u: 0, w: 0, v: 0, f: 0 });
   const screenRef = useRef(new Map<string, ScreenAnchor>());
   const focusRef = useRef<{ hoverId: string | null; focusId: string | null; rippleAt: number }>({
     hoverId: null,
@@ -344,6 +351,28 @@ export function JourneyRoot() {
     schedule(() => setImCaption(false), journeyBeats.vistaCaptionHoldMs);
   }, [chapter, setStoreChapter, markVisited, schedule]);
 
+  /* ── The final chapter (SCENE-007): the architecture opens, typography
+        becomes the hero, and the first light holds the last frame. ── */
+  const beginFuture = useCallback(() => {
+    // The handover law: everything releases as the architecture opens.
+    focusRef.current.focusId = null;
+    focusRef.current.hoverId = null;
+    if (!cinematic) {
+      setChapter('future');
+      return;
+    }
+    setChapter((current) =>
+      current === 'future-arriving' || current === 'future' ? current : 'future-arriving',
+    );
+    schedule(() => setChapter('future'), journeyBeats.futureRevealMs);
+  }, [cinematic, schedule]);
+
+  useEffect(() => {
+    if (chapter !== 'future') return;
+    setStoreChapter('future', 6);
+    markVisited('fu:vista');
+  }, [chapter, setStoreChapter, markVisited]);
+
   /* ── The first intentional act anywhere opens the Claim sequence. ── */
   useEffect(() => {
     if (chapter !== 'opening' || !cinematic || intentionalRef.current) return;
@@ -376,10 +405,11 @@ export function JourneyRoot() {
     };
   }, [phase, cinematic, chapter]);
 
-  /* ── Scroll moves deeper — one runway, five chapters. Each earns the
+  /* ── Scroll moves deeper — one runway, six chapters. Each earns the
         next: impact stays locked until the SCENE-003 decision is
-        committed, and the aftermath waits behind the same law until the
-        visitor's own decision exists (ENGINE_LOCK_W). ── */
+        committed, the aftermath waits behind the same law until the
+        visitor's own decision exists (ENGINE_LOCK_W), and the future
+        opens only once the new shape has settled. ── */
   useEffect(() => {
     const runwayChapters =
       chapter === 'mind' ||
@@ -390,7 +420,9 @@ export function JourneyRoot() {
       chapter === 'engine-arriving' ||
       chapter === 'engine' ||
       chapter === 'impact-arriving' ||
-      chapter === 'impact';
+      chapter === 'impact' ||
+      chapter === 'future-arriving' ||
+      chapter === 'future';
     if (!runwayChapters || !cinematic) return;
 
     let raf = 0;
@@ -404,21 +436,23 @@ export function JourneyRoot() {
         const total = runway > 0 ? Math.min(1, Math.max(0, -rect.top / runway)) : 0;
 
         const anchors = useJourneyStore.getState().visitedAnchors;
-        const p = Math.min(1, total * 5);
-        let g = Math.min(1, Math.max(0, total * 5 - 1));
+        const p = Math.min(1, total * 6);
+        let g = Math.min(1, Math.max(0, total * 6 - 1));
         const committed = anchors.includes('gm:decision:committed');
         if (!committed && g > GRAMMAR_LOCK_G) g = GRAMMAR_LOCK_G;
-        const u = Math.min(1, Math.max(0, total * 5 - 2));
-        let w = Math.min(1, Math.max(0, total * 5 - 3));
+        const u = Math.min(1, Math.max(0, total * 6 - 2));
+        let w = Math.min(1, Math.max(0, total * 6 - 3));
         const decided = anchors.some((a) => a.startsWith('de:committed:'));
         if (!decided && w > ENGINE_LOCK_W) w = ENGINE_LOCK_W;
-        const v = Math.min(1, Math.max(0, total * 5 - 4));
+        const v = Math.min(1, Math.max(0, total * 6 - 4));
+        const f = Math.min(1, Math.max(0, total * 6 - 5));
 
         scrollRef.current.p = p;
         scrollRef.current.g = g;
         scrollRef.current.u = u;
         scrollRef.current.w = w;
         scrollRef.current.v = v;
+        scrollRef.current.f = f;
 
         const order = Math.max(1, Math.min(10, Math.floor(g * 10 + 0.08)));
         setActiveOrder((current) => (current === order ? current : order));
@@ -430,11 +464,14 @@ export function JourneyRoot() {
         );
         const lessons = v >= impactBeats.lessonsThresholdV;
         setLessonsArrived((current) => (current === lessons ? current : lessons));
+        const beat = futureBeatFor(f);
+        setFutureBeat((current) => (current === beat ? current : beat));
 
         if (chapter === 'mind' && p >= GRAMMAR_TRIGGER_P) beginGrammar();
         if (chapter === 'grammar' && g >= UNIVERSE_TRIGGER_G) beginUniverse();
         if (chapter === 'universe' && u >= ENGINE_TRIGGER_U) beginEngine();
         if (chapter === 'engine' && w >= IMPACT_TRIGGER_W) beginImpact();
+        if (chapter === 'impact' && v >= FUTURE_TRIGGER_V) beginFuture();
       });
     };
 
@@ -444,7 +481,7 @@ export function JourneyRoot() {
       cancelAnimationFrame(raf);
       window.removeEventListener('scroll', onScroll);
     };
-  }, [chapter, cinematic, beginGrammar, beginUniverse, beginEngine, beginImpact]);
+  }, [chapter, cinematic, beginGrammar, beginUniverse, beginEngine, beginImpact, beginFuture]);
 
   const onControl = useCallback(() => {
     if (chapter !== 'opening' || phase === 'diving') return;
@@ -481,7 +518,9 @@ export function JourneyRoot() {
       chapter === 'engine-arriving' ||
       chapter === 'engine' ||
       chapter === 'impact-arriving' ||
-      chapter === 'impact') &&
+      chapter === 'impact' ||
+      chapter === 'future-arriving' ||
+      chapter === 'future') &&
     cinematic;
 
   const contextValue = {
@@ -506,6 +545,7 @@ export function JourneyRoot() {
         data-un={unCaption ? 'caption' : 'plain'}
         data-de={deCaption ? 'caption' : 'plain'}
         data-im={imCaption ? 'caption' : 'plain'}
+        data-fu={futureBeat < 0 ? '0' : String(Math.min(futureBeat, 4))}
         className="relative flex flex-1 flex-col"
         style={runwayActive ? { height: MIND_RUNWAY } : undefined}
       >
@@ -519,6 +559,12 @@ export function JourneyRoot() {
 
           {cinematic && chapter !== 'mind' ? (
             <div className="op-warm pointer-events-none absolute inset-0 z-10 bg-gradient-to-b from-ember-100 via-ember-200 to-ember-300" />
+          ) : null}
+
+          {/* The final warm dissolve — light becoming infinite, driven by
+              the wrapper's data-fu (the CSS law, not inline animation). */}
+          {(chapter === 'future-arriving' || chapter === 'future') && cinematic ? (
+            <div className="fu-warm pointer-events-none absolute inset-0 z-10 bg-gradient-to-b from-ember-100 via-ember-200 to-ember-300" />
           ) : null}
 
           {chapter === 'opening' ? (
@@ -586,6 +632,12 @@ export function JourneyRoot() {
           {(chapter === 'impact-arriving' || chapter === 'impact') && cinematic ? (
             <div className="absolute inset-0 z-20">
               <ImpactOverlay lessonsArrived={lessonsArrived} />
+            </div>
+          ) : null}
+
+          {(chapter === 'future-arriving' || chapter === 'future') && cinematic ? (
+            <div className="absolute inset-0 z-20">
+              <FutureOverlay beat={futureBeat} />
             </div>
           ) : null}
 
@@ -658,6 +710,21 @@ export function JourneyRoot() {
           {chapter === 'impact' && !cinematic ? (
             <div className="relative z-10 flex-1 bg-ink-950">
               <ImpactStatic />
+              <div className="flex justify-center px-gutter pb-section-y">
+                <button
+                  type="button"
+                  onClick={beginFuture}
+                  className="inline-flex min-h-[44px] items-center rounded-full bg-ember-700 px-6 py-2 text-body-sm font-medium text-paper-50 transition-colors duration-ui ease-standard hover:bg-ember-600"
+                >
+                  The future — the final chapter
+                </button>
+              </div>
+            </div>
+          ) : null}
+
+          {chapter === 'future' && !cinematic ? (
+            <div className="relative z-10 flex-1 bg-ink-950">
+              <FutureStatic />
             </div>
           ) : null}
 

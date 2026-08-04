@@ -241,6 +241,28 @@
     transform: none;
   }
 
+  /*
+   * SCENE-007 — the final warm dissolve: as the typography takes the
+   * frame, the ember warmth lifts behind it (driven by data-fu, the same
+   * data-attribute law as every other beat; zero inline animation).
+   */
+  .fu-warm {
+    opacity: 0;
+    transition: opacity 2400ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  [data-fu='2'] .fu-warm {
+    opacity: 0.06;
+  }
+
+  [data-fu='3'] .fu-warm {
+    opacity: 0.14;
+  }
+
+  [data-fu='4'] .fu-warm {
+    opacity: 0.22;
+  }
+
   /* The doors over each decision: rings only when listening. */
   .mind-door:focus-visible,
   .mind-door[data-listening='true'] {

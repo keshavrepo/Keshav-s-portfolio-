@@ -87,7 +87,9 @@ export default function UniverseField() {
     const universeLive = chapter === 'universe' || chapter === 'universe-arriving';
     const engineLive = chapter === 'engine' || chapter === 'engine-arriving';
     const impactLive = chapter === 'impact' || chapter === 'impact-arriving';
+    const futureLive = chapter === 'future' || chapter === 'future-arriving';
     const choice = engineLive || impactLive ? engineRef.current.choice : null;
+    const f = THREE.MathUtils.clamp(scrollRef.current.f, 0, 1);
 
     // The pause law: in the engine chapter the world stops until the
     // visitor's decision starts it again. In the aftermath it moves on,
@@ -96,13 +98,25 @@ export default function UniverseField() {
     if (!paused) uniforms.uTime.value += d * (1 - c.calm * 0.45);
     uniforms.uAwake.value = THREE.MathUtils.damp(uniforms.uAwake.value, paused ? 0 : 1, 1.6, d);
 
+    // The dissolve law (SCENE-007): the universe slowly opens. The
+    // architecture disappears; only the heartbeat outlasts its world.
     c.reveal = THREE.MathUtils.damp(
       c.reveal,
-      universeLive || engineLive || impactLive ? 1 : 0,
+      futureLive
+        ? THREE.MathUtils.lerp(1, 0.08, THREE.MathUtils.smoothstep(f, 0, 1))
+        : universeLive || engineLive || impactLive
+          ? 1
+          : 0,
       0.9,
       d,
     );
     uniforms.uReveal.value = c.reveal;
+    uniforms.uHeartHold.value = THREE.MathUtils.damp(
+      uniforms.uHeartHold.value,
+      futureLive ? THREE.MathUtils.smoothstep(Math.min(1, f * 1.15), 0, 1) : 0,
+      0.9,
+      d,
+    );
 
     // ── Recovery: scroll (v) moves every system from its grown position
     //    to the shape the decision authored — light becomes architecture. ──
@@ -117,8 +131,15 @@ export default function UniverseField() {
 
     const fog = state.scene.fog as THREE.Fog | null;
     if (fog) {
-      fog.near = impactLive ? THREE.MathUtils.lerp(FOG_NEAR, 15, c.calm) : FOG_NEAR;
-      fog.far = impactLive ? THREE.MathUtils.lerp(FOG_FAR, 54, c.calm) : FOG_FAR;
+      if (futureLive) {
+        // Light becomes infinite: the dark lifts as the words take over.
+        const dissolve = THREE.MathUtils.smoothstep(f, 0, 1);
+        fog.near = THREE.MathUtils.lerp(15, 26, dissolve);
+        fog.far = THREE.MathUtils.lerp(54, 90, dissolve);
+      } else {
+        fog.near = impactLive ? THREE.MathUtils.lerp(FOG_NEAR, 15, c.calm) : FOG_NEAR;
+        fog.far = impactLive ? THREE.MathUtils.lerp(FOG_FAR, 54, c.calm) : FOG_FAR;
+      }
     }
 
     if (impactLive && choice) {
