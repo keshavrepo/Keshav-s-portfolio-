@@ -27,6 +27,10 @@ export interface UniverseUniforms {
   uHoverId: { value: number };
   /** Seconds since the ripple was (re)started — the change travelling. */
   uRipple: { value: number };
+  /** 0 = the universe holds its breath (engine pause), 1 = awake. */
+  uAwake: { value: number };
+  /** 1 = scripted consequence waves are driving (SCENE-005). */
+  uScript: { value: number };
   uPointScale: { value: number };
 }
 
@@ -60,6 +64,8 @@ const ENTITY_VERTEX = /* glsl */ `
   uniform float uFocusId;
   uniform float uHoverId;
   uniform float uRipple;
+  uniform float uAwake;
+  uniform float uScript;
   uniform float uPointScale;
   varying float vAlpha;
   varying float vCore;
@@ -76,7 +82,8 @@ const ENTITY_VERTEX = /* glsl */ `
     float focused = step(abs(aId - uFocusId), 0.5);
 
     // The heart beats like the first neuron did — the business is the
-    // same living thing, grown.
+    // same living thing, grown. When the universe holds its breath
+    // (the engine pause), the heartbeat softens but never stops.
     float heart = step(abs(aId - ${HEART_ID.toFixed(1)}), 0.5);
     float cycle = fract(uTime * 1.111);
     float beat = exp(-24.0 * pow(cycle - 0.10, 2.0)) + 0.6 * exp(-24.0 * pow(cycle - 0.32, 2.0));
@@ -88,12 +95,17 @@ const ENTITY_VERTEX = /* glsl */ `
       float downstream = aWave > 0.5 && aWave < 50.0 ? waveGlow(aWave) : 0.0;
       float upstream = aUpstream * (0.18 + 0.08 * breathe);
       alpha = focused * (0.75 + 0.2 * breathe) + (1.0 - focused) * (0.045 + downstream * 0.8 + upstream);
+    } else if (uScript > 0.5) {
+      // Consequences: scripted waves of the committed decision — the
+      // world answers, stage by stage; everything else keeps breathing.
+      float downstream = aWave > 0.5 && aWave < 50.0 ? waveGlow(aWave) : 0.0;
+      alpha = 0.14 + 0.1 * breathe + downstream * 0.85;
     } else {
       // Listening: the system answers, and its relationship neighborhood
       // leans in — that is the whole lesson of a hover.
       alpha += hovered * 0.55 + aAdj * 0.35 * (0.6 + 0.4 * breathe);
     }
-    alpha += heart * beat * 0.18;
+    alpha += heart * beat * 0.18 * (0.25 + 0.75 * uAwake);
     vAlpha = alpha * built * uReveal;
     vCore = 1.0;
 
@@ -114,6 +126,7 @@ const EDGE_VERTEX = /* glsl */ `
   uniform float uFocusId;
   uniform float uHoverId;
   uniform float uRipple;
+  uniform float uScript;
   varying float vAlpha;
 
   float waveGlow(float wave) {
@@ -127,6 +140,9 @@ const EDGE_VERTEX = /* glsl */ `
     if (uFocusId > 0.5) {
       float downstream = aWave > 0.5 && aWave < 50.0 ? waveGlow(aWave) : 0.0;
       base = 0.035 + downstream * (0.5 + aCore * 0.2);
+    } else if (uScript > 0.5) {
+      float downstream = aWave > 0.5 && aWave < 50.0 ? waveGlow(aWave) : 0.0;
+      base = 0.05 + downstream * (0.45 + aCore * 0.2);
     } else if (uHoverId > 0.5) {
       base += aHot * 0.42;
     }
@@ -146,6 +162,7 @@ const GLINT_VERTEX = /* glsl */ `
   uniform float uProgress;
   uniform float uFocusId;
   uniform float uRipple;
+  uniform float uAwake;
   uniform float uPointScale;
   varying float vAlpha;
   varying float vCore;
@@ -166,6 +183,9 @@ const GLINT_VERTEX = /* glsl */ `
       float downstream = aWave > 0.5 && aWave < 50.0 ? waveGlow(aWave) : 0.0;
       alpha = envelope * downstream * 0.85;
     }
+    // The pauses are the message: when the universe holds its breath for
+    // the visitor's decision, the travelling pulses go still and dark.
+    alpha *= uAwake;
     vAlpha = alpha * built * uReveal;
     vCore = 1.0;
     vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
@@ -212,6 +232,8 @@ export function createUniverseAssets(): UniverseAssets {
     uFocusId: { value: 0 },
     uHoverId: { value: 0 },
     uRipple: { value: 99 },
+    uAwake: { value: 1 },
+    uScript: { value: 0 },
     uPointScale: { value: 400 },
   };
 

@@ -9,6 +9,10 @@ import { ensureGsapConfigured, gsap } from '@/core/motion/gsap';
 import { useJourneyStore } from '@/core/state/journey-store';
 import { motionDurations } from '@/design-system/tokens';
 import { cn } from '@/lib/cn';
+import { DECISION_EVIDENCE } from '@/scene/engine/decision-content';
+import { ENGINE_TRIGGER_U, engineBeats } from '@/scene/engine/decision-machine';
+import { EngineOverlay } from '@/scene/engine/EngineOverlay';
+import { EngineStatic } from '@/scene/engine/EngineStatic';
 import { GrammarOverlay } from '@/scene/grammar/GrammarOverlay';
 import { GrammarStatic } from '@/scene/grammar/GrammarStatic';
 import { MindscapeOverlay } from '@/scene/mindscape/MindscapeOverlay';
@@ -66,6 +70,9 @@ const CHAPTER_ANNOUNCEMENTS: Record<JourneyPhase, string> = {
     'The committed decision takes root. One promise, kept, begins to grow into a whole business.',
   universe:
     'The business universe. Scroll to grow its systems; hover to reveal a relationship; select a system to isolate it and watch the change travel downstream.',
+  'engine-arriving': 'The universe holds its breath. Now the thinking is yours.',
+  engine:
+    'The Renewal Cliff. Evidence arrives as you scroll — read all four pieces, weigh three paths, and commit once. There is no undo, only consequences.',
 };
 
 function controlLabelFor(phase: OpeningPhase): string {
@@ -93,19 +100,25 @@ export function JourneyRoot() {
   const [vistaSettled, setVistaSettled] = useState(false);
   const [gmCaption, setGmCaption] = useState(false);
   const [unCaption, setUnCaption] = useState(false);
+  const [deCaption, setDeCaption] = useState(false);
   const [activeOrder, setActiveOrder] = useState(1);
+  const [engineProgress, setEngineProgress] = useState({ evidence: 0, paths: false });
 
   const hostRef = useRef<HTMLDivElement>(null);
   const staticMindRef = useRef<HTMLDivElement>(null);
 
   const presenceRef = useRef<PointerPresence>({ x: 0, y: 0, dist: 1, active: false });
   const diveRef = useRef<DiveProgress>({ value: 0 });
-  const scrollRef = useRef({ p: 0, g: 0, u: 0 });
+  const scrollRef = useRef({ p: 0, g: 0, u: 0, w: 0 });
   const screenRef = useRef(new Map<string, ScreenAnchor>());
   const focusRef = useRef<{ hoverId: string | null; focusId: string | null; rippleAt: number }>({
     hoverId: null,
     focusId: null,
     rippleAt: 0,
+  });
+  const engineRef = useRef<{ choice: string | null; clockAt: number }>({
+    choice: null,
+    clockAt: 0,
   });
 
   const intentionalRef = useRef(false);
@@ -266,6 +279,38 @@ export function JourneyRoot() {
     schedule(() => setUnCaption(false), journeyBeats.vistaCaptionHoldMs);
   }, [chapter, setStoreChapter, markVisited, schedule]);
 
+  /* ── The world pauses: at the universe's full complexity the clock stops
+        and the seat across the table is the visitor's (SCENE-005). ── */
+  const beginEngine = useCallback(() => {
+    // The handover law: every held focus releases as the world pauses.
+    focusRef.current.focusId = null;
+    focusRef.current.hoverId = null;
+    // A returning visitor's decision still stands (the lock persists);
+    // the consequence clock restarts on entry so world and words replay
+    // together — synced before the chapter changes, by the shared-clock law.
+    const committed = useJourneyStore
+      .getState()
+      .visitedAnchors.find((a) => a.startsWith('de:committed:'));
+    engineRef.current.choice = committed ? committed.slice('de:committed:'.length) : null;
+    engineRef.current.clockAt = performance.now();
+    if (!cinematic) {
+      setChapter('engine');
+      return;
+    }
+    setDeCaption(true);
+    setChapter((current) =>
+      current === 'engine-arriving' || current === 'engine' ? current : 'engine-arriving',
+    );
+    schedule(() => setChapter('engine'), journeyBeats.engineRevealMs);
+  }, [cinematic, schedule]);
+
+  useEffect(() => {
+    if (chapter !== 'engine') return;
+    setStoreChapter('decision-engine', 5);
+    markVisited('de:vista');
+    schedule(() => setDeCaption(false), journeyBeats.vistaCaptionHoldMs);
+  }, [chapter, setStoreChapter, markVisited, schedule]);
+
   /* ── The first intentional act anywhere opens the Claim sequence. ── */
   useEffect(() => {
     if (chapter !== 'opening' || !cinematic || intentionalRef.current) return;
@@ -298,18 +343,19 @@ export function JourneyRoot() {
     };
   }, [phase, cinematic, chapter]);
 
-  /* ── Scroll moves deeper — one runway, three chapters. The mind occupies
-        the first third; the process re-forms at its settled end and owns
-        the second third; the committed decision grows the universe in the
-        third. Impact stays locked until the decision is committed, and
-        the universe itself waits for that commitment. ── */
+  /* ── Scroll moves deeper — one runway, four chapters. The mind, the
+        process, the universe, the engine — each earns the next. Impact
+        stays locked until the SCENE-003 decision is committed; the world
+        pauses for the visitor's own decision in the fourth. ── */
   useEffect(() => {
     const runwayChapters =
       chapter === 'mind' ||
       chapter === 'grammar-arriving' ||
       chapter === 'grammar' ||
       chapter === 'universe-arriving' ||
-      chapter === 'universe';
+      chapter === 'universe' ||
+      chapter === 'engine-arriving' ||
+      chapter === 'engine';
     if (!runwayChapters || !cinematic) return;
 
     let raf = 0;
@@ -322,23 +368,32 @@ export function JourneyRoot() {
         const runway = rect.height - window.innerHeight;
         const total = runway > 0 ? Math.min(1, Math.max(0, -rect.top / runway)) : 0;
 
-        const p = Math.min(1, total * 3);
-        let g = Math.min(1, Math.max(0, total * 3 - 1));
+        const p = Math.min(1, total * 4);
+        let g = Math.min(1, Math.max(0, total * 4 - 1));
         const committed = useJourneyStore
           .getState()
           .visitedAnchors.includes('gm:decision:committed');
         if (!committed && g > GRAMMAR_LOCK_G) g = GRAMMAR_LOCK_G;
-        const u = Math.min(1, Math.max(0, total * 3 - 2));
+        const u = Math.min(1, Math.max(0, total * 4 - 2));
+        const w = Math.min(1, Math.max(0, total * 4 - 3));
 
         scrollRef.current.p = p;
         scrollRef.current.g = g;
         scrollRef.current.u = u;
+        scrollRef.current.w = w;
 
         const order = Math.max(1, Math.min(10, Math.floor(g * 10 + 0.08)));
         setActiveOrder((current) => (current === order ? current : order));
 
+        const evidence = DECISION_EVIDENCE.filter((e) => w >= e.threshold).length;
+        const paths = w >= engineBeats.pathsThresholdW;
+        setEngineProgress((current) =>
+          current.evidence === evidence && current.paths === paths ? current : { evidence, paths },
+        );
+
         if (chapter === 'mind' && p >= GRAMMAR_TRIGGER_P) beginGrammar();
         if (chapter === 'grammar' && g >= UNIVERSE_TRIGGER_G) beginUniverse();
+        if (chapter === 'universe' && u >= ENGINE_TRIGGER_U) beginEngine();
       });
     };
 
@@ -348,7 +403,7 @@ export function JourneyRoot() {
       cancelAnimationFrame(raf);
       window.removeEventListener('scroll', onScroll);
     };
-  }, [chapter, cinematic, beginGrammar, beginUniverse]);
+  }, [chapter, cinematic, beginGrammar, beginUniverse, beginEngine]);
 
   const onControl = useCallback(() => {
     if (chapter !== 'opening' || phase === 'diving') return;
@@ -380,7 +435,9 @@ export function JourneyRoot() {
       chapter === 'grammar-arriving' ||
       chapter === 'grammar' ||
       chapter === 'universe-arriving' ||
-      chapter === 'universe') &&
+      chapter === 'universe' ||
+      chapter === 'engine-arriving' ||
+      chapter === 'engine') &&
     cinematic;
 
   const contextValue = {
@@ -391,6 +448,7 @@ export function JourneyRoot() {
     scrollRef,
     screenRef,
     focusRef,
+    engineRef,
   };
 
   return (
@@ -402,6 +460,7 @@ export function JourneyRoot() {
         data-vista={vistaSettled ? 'settled' : 'fresh'}
         data-gm={gmCaption ? 'caption' : 'plain'}
         data-un={unCaption ? 'caption' : 'plain'}
+        data-de={deCaption ? 'caption' : 'plain'}
         className="relative flex flex-1 flex-col"
         style={runwayActive ? { height: MIND_RUNWAY } : undefined}
       >
@@ -470,6 +529,15 @@ export function JourneyRoot() {
             </div>
           ) : null}
 
+          {(chapter === 'engine-arriving' || chapter === 'engine') && cinematic ? (
+            <div className="absolute inset-0 z-20">
+              <EngineOverlay
+                evidenceCount={engineProgress.evidence}
+                pathsArrived={engineProgress.paths}
+              />
+            </div>
+          ) : null}
+
           {chapter === 'mind' && !cinematic ? (
             <div ref={staticMindRef} className="relative z-10 flex-1 bg-ink-950">
               <MindscapeStatic />
@@ -503,6 +571,21 @@ export function JourneyRoot() {
           {chapter === 'universe' && !cinematic ? (
             <div className="relative z-10 flex-1 bg-ink-950">
               <UniverseStatic />
+              <div className="flex justify-center px-gutter pb-section-y">
+                <button
+                  type="button"
+                  onClick={beginEngine}
+                  className="inline-flex min-h-[44px] items-center rounded-full bg-ember-700 px-6 py-2 text-body-sm font-medium text-paper-50 transition-colors duration-ui ease-standard hover:bg-ember-600"
+                >
+                  Now the thinking is yours — take the seat
+                </button>
+              </div>
+            </div>
+          ) : null}
+
+          {chapter === 'engine' && !cinematic ? (
+            <div className="relative z-10 flex-1 bg-ink-950">
+              <EngineStatic />
             </div>
           ) : null}
 

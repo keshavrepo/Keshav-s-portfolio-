@@ -207,6 +207,23 @@
     transform: none;
   }
 
+  /* SCENE-005 — the engine caption: the world pauses, the words arrive. */
+  .de-arrival {
+    transition:
+      opacity 1400ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 1400ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  html[data-js='1'] .de-arrival {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  [data-de='caption'] .de-arrival {
+    opacity: 1;
+    transform: none;
+  }
+
   /* The doors over each decision: rings only when listening. */
   .mind-door:focus-visible,
   .mind-door[data-listening='true'] {

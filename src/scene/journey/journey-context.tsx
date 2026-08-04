@@ -43,12 +43,13 @@ export interface JourneySceneContextValue {
   presenceRef: MutableRefObject<PointerPresence>;
   diveRef: MutableRefObject<DiveProgress>;
   /**
-   * Runway progress, three chapters in one strip (SCENE-003 → SCENE-004
-   * law): p = the mind third (0 vista → 1 deep), g = the process third
-   * (0 first station → 1 business impact), u = the universe third
-   * (0 the heart ignites → 1 full complexity).
+   * Runway progress, four chapters in one strip (SCENE-003 → SCENE-005
+   * law): p = the mind (0 vista → 1 deep), g = the process (0 first
+   * station → 1 business impact), u = the universe (0 the heart ignites
+   * → 1 full complexity), w = the engine (0 the world pauses → 1 the
+   * consequences settle).
    */
-  scrollRef: MutableRefObject<{ p: number; g: number; u: number }>;
+  scrollRef: MutableRefObject<{ p: number; g: number; u: number; w: number }>;
   /** Mindscape node id → live screen projection (written inside the canvas). */
   screenRef: MutableRefObject<Map<string, ScreenAnchor>>;
   /**
@@ -58,6 +59,14 @@ export interface JourneySceneContextValue {
    * two layers can never disagree about a travelling change.
    */
   focusRef: MutableRefObject<{ hoverId: string | null; focusId: string | null; rippleAt: number }>;
+  /**
+   * The Decision Engine's channel (SCENE-005): which path was committed
+   * (null until the decision locks) and the shared consequence clock —
+   * the instant the consequences began (performance.now ms). The universe
+   * field reads the scripted waves from `choice`; canvas and DOM both
+   * derive what has landed from `clockAt` (the shared-clock law reused).
+   */
+  engineRef: MutableRefObject<{ choice: string | null; clockAt: number }>;
 }
 
 export const JourneySceneContext = createContext<JourneySceneContextValue | null>(null);

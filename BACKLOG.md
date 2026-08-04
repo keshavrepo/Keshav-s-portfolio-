@@ -58,3 +58,19 @@ scene's brief. Recorded, not pursued. (Directive: execution over speculation.)
 15. **Ripple replay nudge** — `focusRef.rippleAt` double-purposes as replay
     channel. If SCENE-005+ needs more world events, promote to a typed
     world-event ref instead of growing focusRef.
+
+## Recorded during SCENE-005
+
+16. **Scroll-progress generalization** — activeOrder (grammar), engineProgress
+    (engine) are chapter-scoped projections of the same runway math. A typed
+    "chapter progress" descriptor on the machine would replace per-chapter
+    setters when Chapter Six lands.
+17. **World-event ref** — engineRef.choice/clockAt is the second hand-written
+    world channel after focusRef.rippleAt (see #15). Promote both to a typed
+    event channel before a third appears.
+18. **Committed-decision replay pacing** — a returning visitor replays all
+    consequence stages from chapter entry. If Chapter Six needs instant
+    "already settled" worlds, add a settled-at anchor timestamp and skip.
+19. **Static-lane suspense parity** — composed lanes commit instantly (no
+    suspense hold). Deliberate: meaning never waits on frames; revisit only
+    if a SPEC ever asks for timed beats outside the cinematic lane.

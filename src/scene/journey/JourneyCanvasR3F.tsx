@@ -49,13 +49,18 @@ export default function JourneyCanvasR3F() {
         {(chapter === 'grammar-arriving' ||
           chapter === 'grammar' ||
           chapter === 'universe-arriving' ||
-          chapter === 'universe') && (
+          chapter === 'universe' ||
+          chapter === 'engine-arriving' ||
+          chapter === 'engine') && (
           <>
             <GrammarProjector />
             <GrammarField />
           </>
         )}
-        {(chapter === 'universe-arriving' || chapter === 'universe') && (
+        {(chapter === 'universe-arriving' ||
+          chapter === 'universe' ||
+          chapter === 'engine-arriving' ||
+          chapter === 'engine') && (
           <>
             <UniverseProjector />
             <UniverseField />

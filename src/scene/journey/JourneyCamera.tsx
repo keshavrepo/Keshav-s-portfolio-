@@ -32,6 +32,15 @@ const UNIVERSE_LOOK_START = new THREE.Vector3(0, 1.3, -63); // the impact statio
 const UNIVERSE_LOOK_END = new THREE.Vector3(0, 0.6, -80); // past the heart, into the backbone
 
 /**
+ * The Decision Engine (SCENE-005): the camera rises a breath and holds
+ * the whole business in frame — the visitor must see everything their
+ * decision is about to touch, and then watch it be touched.
+ */
+const ENGINE_VISTA = new THREE.Vector3(0, 2.1, -66);
+const ENGINE_DEEP_Z = -68.5;
+const ENGINE_LOOK = new THREE.Vector3(0, 0.5, -79);
+
+/**
  * The unified camera (SCENE-001 → 002 → 003). One camera for the whole
  * universe — it drifts, dives, repositions inside the dive's white, rails
  * deeper on scroll, and honors focused thoughts from their own side.
@@ -85,6 +94,24 @@ export function JourneyCamera() {
     }
 
     const universeLive = chapter === 'universe' || chapter === 'universe-arriving';
+    const engineLive = chapter === 'engine' || chapter === 'engine-arriving';
+
+    if (engineLive) {
+      // The engine fourth: rise, hold the whole system in frame, and let
+      // scroll carry only a slow drift — the world is now the stage.
+      const w = THREE.MathUtils.clamp(scrollRef.current.w, 0, 1);
+      const eased = THREE.MathUtils.smoothstep(w, 0, 1);
+      const railZ = ENGINE_VISTA.z + (ENGINE_DEEP_Z - ENGINE_VISTA.z) * eased;
+      const railX = (presence.active ? presence.x : 0) * 0.18;
+      const railY = ENGINE_VISTA.y + eased * 0.8 + (presence.active ? presence.y : 0) * 0.12;
+
+      const lambda = chapter === 'engine-arriving' ? 1.4 : 1.1;
+      perspective.position.x = THREE.MathUtils.damp(perspective.position.x, railX, lambda, d);
+      perspective.position.y = THREE.MathUtils.damp(perspective.position.y, railY, lambda, d);
+      perspective.position.z = THREE.MathUtils.damp(perspective.position.z, railZ, lambda, d);
+      perspective.lookAt(ENGINE_LOOK);
+      return;
+    }
 
     if (universeLive) {
       // The universe third: approach the newborn heart, then the gaze

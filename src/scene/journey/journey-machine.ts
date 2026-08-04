@@ -16,6 +16,8 @@ export const JOURNEY_PHASES = [
   'grammar',
   'universe-arriving',
   'universe',
+  'engine-arriving',
+  'engine',
 ];
 export type JourneyPhase = (typeof JOURNEY_PHASES)[number];
 
@@ -25,6 +27,8 @@ const VISTA_REVEAL_MS = 1600;
 const GRAMMAR_REVEAL_MS = 1400;
 /** Chapter Four's arrival: the committed decision takes root as a heart. */
 const UNIVERSE_REVEAL_MS = 1400;
+/** Chapter Five's arrival: the universe holds its breath for the visitor. */
+const ENGINE_REVEAL_MS = 1400;
 
 /**
  * Arrival begins the moment the dive's overexposure peaks (dive + warm-out),
@@ -36,6 +40,7 @@ export const journeyBeats = {
   vistaRevealMs: VISTA_REVEAL_MS,
   grammarRevealMs: GRAMMAR_REVEAL_MS,
   universeRevealMs: UNIVERSE_REVEAL_MS,
+  engineRevealMs: ENGINE_REVEAL_MS,
   /** the vista caption holds, then recedes into the small legend */
   vistaCaptionHoldMs: 4200,
 } as const;
@@ -43,12 +48,12 @@ export const journeyBeats = {
 export const journeySettleMs = journeyBeats.arrivalBeginMs + journeyBeats.vistaRevealMs;
 
 /**
- * The shared runway: THREE chapters of scroll in one uninterrupted strip —
- * the first third is the mind (z-rail), the second is the process
- * (case travel), the third is the business universe (systems unfold).
+ * The shared runway: FOUR chapters of scroll in one uninterrupted strip —
+ * the mind (z-rail), the process (case travel), the business universe
+ * (systems unfold), and the decision engine (evidence, then consequences).
  * One runway, so scrolling never crosses a seam.
  */
-export const MIND_RUNWAY = '960vh';
+export const MIND_RUNWAY = '1280vh';
 
 /** Scroll fraction of the mind third at which the map may re-form. */
 export const GRAMMAR_TRIGGER_P = 0.985;
