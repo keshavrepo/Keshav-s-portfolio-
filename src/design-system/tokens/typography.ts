@@ -14,17 +14,17 @@ export const typeScale = {
    * stay inside a monitor's courtesy. Leading 0.94–1.02 — carved, not
    * stacked (V-T22); tracking negative at display only (V-T24).
    */
-  /** reserved for one-word heroes and the verbs that earned monument scale */
+  /** MONUMENT scale — one-word heroes and the verbs that earned it */
   'display-monument': [
     'clamp(4rem, 1.0625rem + 14.6875vw, 14rem)',
     { lineHeight: '0.94', letterSpacing: '-0.04em', fontWeight: '500' },
   ],
-  /** the chapter hero line: claim-scale, spread-owning */
+  /** HERO scale — the chapter hero line: claim-scale, spread-owning */
   'display-hero': [
     'clamp(3rem, 1.1875rem + 8.90625vw, 9rem)',
     { lineHeight: '0.98', letterSpacing: '-0.03em', fontWeight: '500' },
   ],
-  /** the whisper: ambient thought-lines, felt whole at a glance (S75/V-T67) */
+  /** WHISPER scale — ambient thought-lines, felt whole at a glance (S75/V-T67) */
   whisper: ['0.9375rem', { lineHeight: '1.55', letterSpacing: '0.01em', fontWeight: '420' }],
   'display-xl': [
     'clamp(2.75rem, 2.0625rem + 3.4375vw, 4.625rem)',
@@ -38,6 +38,7 @@ export const typeScale = {
     'clamp(1.75rem, 1.4375rem + 1.5625vw, 2.5rem)',
     { lineHeight: '1.12', letterSpacing: '-0.014em', fontWeight: '500' },
   ],
+  /** EDITORIAL scale — the reading register: headline, lede, body, furniture */
   headline: [
     'clamp(1.375rem, 1.1875rem + 0.9375vw, 1.875rem)',
     { lineHeight: '1.22', letterSpacing: '-0.01em', fontWeight: '560' },
@@ -57,4 +58,22 @@ export const measureCh = {
   wide: '78ch',
 } as const;
 
+/**
+ * Variable-axes settings (V-T16/T17): optical sizing is set deliberately
+ * per role — display at max, micro-labels at min; SOFT/WONK are hero
+ * temperament only, never furniture. Values are `font-variation-settings`
+ * strings for the Statement voice (Fraunces full variable: opsz 9–144,
+ * SOFT 0–100, WONK 0–1 — node_modules/@fontsource-variable/fraunces/
+ * metadata.json); the Analyst voice carries a wght axis only, so these
+ * silently no-op there. Cascading replaces, never merges — stacking axes
+ * composes one declaration in scene CSS.
+ */
+export const fontAxes = {
+  'opsz-display': "'opsz' 144",
+  'opsz-micro': "'opsz' 9",
+  'voice-soft': "'SOFT' 100",
+  'voice-wonk': "'WONK' 1",
+} as const;
+
 export type TypeRole = keyof typeof typeScale;
+export type FontAxis = keyof typeof fontAxes;

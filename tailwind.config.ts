@@ -6,12 +6,14 @@ import {
   colorTokens,
   durationClasses,
   easeClasses,
+  fontAxes,
   layoutExtents,
   layoutSpacing,
   measureCh,
   motionDurations,
   motionEasings,
   restingPalette,
+  TRUE_BLACK,
   typeScale,
 } from './src/design-system/tokens';
 
@@ -47,12 +49,18 @@ const config: Config = {
   content: ['./src/**/*.{ts,tsx}'],
   theme: {
     extend: {
-      colors: { ...colorTokens, chapter: chapterColors },
+      colors: { ...colorTokens, chapter: chapterColors, 'true-black': TRUE_BLACK },
       fontFamily: {
         display: ['var(--font-display)', 'Georgia', '"Times New Roman"', 'serif'],
         text: ['var(--font-text)', 'system-ui', '-apple-system', '"Segoe UI"', 'sans-serif'],
         mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
       },
+      /**
+       * Variable-axes strings (V-T16/T17), read by the kit via
+       * `theme('fontVariationSettings.*')`. Not a utility scale — axes are
+       * composed per role, never dialed ad hoc in class soup.
+       */
+      fontVariationSettings: fontAxes,
       fontSize: typeScale as unknown as Record<
         string,
         [string, { lineHeight: string; letterSpacing?: string; fontWeight?: string }]

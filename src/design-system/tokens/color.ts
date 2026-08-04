@@ -44,6 +44,24 @@ export type ColorFamily = keyof typeof colorTokens;
 export type ColorShade<F extends ColorFamily> = keyof (typeof colorTokens)[F];
 
 /**
+ * The shared neutral palette (V-C5): every chapter's field and ink resolves
+ * toward one warm house register — paper for light rooms, ink for dark.
+ * An alias by reference, never a restatement of the values above.
+ */
+export const sharedNeutrals = {
+  light: colorTokens.paper,
+  dark: colorTokens.ink,
+} as const;
+
+/**
+ * The one sanctioned pure black (S69/§9: the True Fade at T11 only).
+ * Everywhere else the house law stands: never pure black — ink-950 is the
+ * darkest lawful surface. This token exists so the exception also obeys
+ * one-number-one-place.
+ */
+export const TRUE_BLACK = '#000000';
+
+/**
  * One chapter color constitution (VISUAL_DESIGN_BIBLE §4 · V-C register).
  * `accent.glow` is display/decorative only; `accent.text` is the
  * interaction/label tier and must hold ≥4.5:1 on `field` (V-C48).

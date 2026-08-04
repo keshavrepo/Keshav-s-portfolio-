@@ -3,10 +3,10 @@
  * may express (ARCHITECTURE §2). Consumed at compile time by
  * `tailwind.config.ts` and at runtime by the motion system.
  */
-export { chapterPalettes, colorTokens, restingPalette } from './color';
+export { chapterPalettes, colorTokens, restingPalette, sharedNeutrals, TRUE_BLACK } from './color';
 export type { ChapterPalette, ChapterPaletteId, ColorFamily, ColorShade } from './color';
-export { measureCh, typeScale } from './typography';
-export type { TypeRole } from './typography';
+export { fontAxes, measureCh, typeScale } from './typography';
+export type { FontAxis, TypeRole } from './typography';
 export { layoutExtents, layoutSpacing } from './spacing';
 export type { LayoutExtent, LayoutSpacingToken } from './spacing';
 export {

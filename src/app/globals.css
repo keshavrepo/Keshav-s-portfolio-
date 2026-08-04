@@ -479,3 +479,209 @@ html[data-js='1'] .v2-draw:not(.v2-live) {
     display: none;
   }
 }
+
+/* The halo also leaves when the resolved policy says so (V-I65: per
+   setting) and on the Semantic telling, where motion-law is opacity-only. */
+html[data-motion='reduced'] .v2-cursor-halo,
+html[data-lane='semantic'] .v2-cursor-halo {
+  display: none;
+}
+
+/* ── Composed voices: the four scales as one-class voices (V-T-III) ──── */
+
+/* MONUMENT: one-word heroes. Optical size at max by law (V-T16). */
+.v2-monument {
+  font-family: theme('fontFamily.display');
+  font-size: theme('fontSize.display-monument.0');
+  line-height: theme('fontSize.display-monument.1.lineHeight');
+  letter-spacing: theme('fontSize.display-monument.1.letterSpacing');
+  font-weight: theme('fontSize.display-monument.1.fontWeight');
+  font-variation-settings: theme('fontVariationSettings.opsz-display');
+}
+
+/* HERO: the chapter hero line — claim-scale, spread-owning. */
+.v2-hero {
+  font-family: theme('fontFamily.display');
+  font-size: theme('fontSize.display-hero.0');
+  line-height: theme('fontSize.display-hero.1.lineHeight');
+  letter-spacing: theme('fontSize.display-hero.1.letterSpacing');
+  font-weight: theme('fontSize.display-hero.1.fontWeight');
+  font-variation-settings: theme('fontVariationSettings.opsz-display');
+}
+
+/* EDITORIAL: the reading register — lede voice at the reading measure,
+   hung edges (V-T51: set like type, never placed text). */
+.v2-editorial {
+  max-width: theme('maxWidth.measure');
+  font-size: theme('fontSize.lede.0');
+  line-height: theme('fontSize.lede.1.lineHeight');
+  hanging-punctuation: first last;
+}
+
+/* WHISPER: ambient thought-lines (V-T67). */
+.v2-whisper {
+  font-size: theme('fontSize.whisper.0');
+  line-height: theme('fontSize.whisper.1.lineHeight');
+  letter-spacing: theme('fontSize.whisper.1.letterSpacing');
+  font-weight: theme('fontSize.whisper.1.fontWeight');
+}
+
+/* Variable-axes instruments (V-T17): optical sizing per role; SOFT/WONK
+   are hero temperament, budgeted to hero moments — never furniture. */
+.v2-opsz-display {
+  font-variation-settings: theme('fontVariationSettings.opsz-display');
+}
+
+.v2-opsz-micro {
+  font-variation-settings: theme('fontVariationSettings.opsz-micro');
+}
+
+.v2-voice-soft {
+  font-variation-settings: theme('fontVariationSettings.voice-soft');
+}
+
+.v2-voice-wonk {
+  font-variation-settings: theme('fontVariationSettings.voice-wonk');
+}
+
+/* ── Layout kit: containers + responsive law (V-L §10–12) ────────────── */
+
+/* The reading column and its kin (V-T reading castes). */
+.v2-measure {
+  max-width: theme('maxWidth.measure');
+}
+
+.v2-measure-narrow {
+  max-width: theme('maxWidth.narrow');
+}
+
+.v2-measure-wide {
+  max-width: theme('maxWidth.wide');
+}
+
+/* The breakout: an element inside .v2-field spans to the viewport's
+   gutters; the field cap still bounds it (§10.1: breakouts cap at field). */
+.v2-bleed {
+  margin-inline: calc(-1 * theme('spacing.grid-margin'));
+}
+
+/* Responsive law: below the md line (768px — the same threshold as
+   Tailwind's `md` screen) every column caste takes the full row; the
+   twelve-column castes exist only where the air does. */
+@media (max-width: 767px) {
+  .v2-span-body,
+  .v2-span-exhibit {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ── The kit laws, continued (named moves, V-M-III) ──────────────────── */
+
+/* The Split (V-M23): text divided at phrase boundaries — words and lines.
+   Markup contract: .v2-split > unit (the mask) > unit-text (the riser);
+   units stage by --step-i (45ms, the Cascade step). Letters only for
+   one-word heroes and the signature (§7 row 3). */
+.v2-split > * {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+
+.v2-split > * > * {
+  display: inline-block;
+  transition:
+    opacity theme('transitionDuration.enter') theme('transitionTimingFunction.signal-out'),
+    transform theme('transitionDuration.enter') theme('transitionTimingFunction.signal-out');
+  transition-delay: calc(var(--step-i, 0) * theme('transitionDuration.stagger'));
+}
+
+html[data-js='1'] .v2-split:not(.v2-live) > * > * {
+  opacity: 0;
+  transform: translateY(38%) rotate(3deg);
+}
+
+/* Field plates for the Migration: paint from the live chapter vars so a
+   data-chapter move is a weather change, never a cut (V-C8/C80). */
+.v2-paint {
+  background-color: var(--v2-field);
+  color: var(--v2-ink);
+}
+
+.v2-paint-ink {
+  background-color: var(--v2-ink);
+  color: var(--v2-field);
+}
+
+/* The Migration (V-M26): whole color-fields crossfade at the token time
+   with a symmetric midpoint (V-C51); the reduced telling jumps to the
+   destination field states (V-M75). */
+.v2-migrate {
+  transition:
+    background-color theme('transitionDuration.migrate') theme('transitionTimingFunction.migrate'),
+    color theme('transitionDuration.migrate') theme('transitionTimingFunction.migrate'),
+    border-color theme('transitionDuration.migrate') theme('transitionTimingFunction.migrate'),
+    fill theme('transitionDuration.migrate') theme('transitionTimingFunction.migrate'),
+    stroke theme('transitionDuration.migrate') theme('transitionTimingFunction.migrate');
+}
+
+html[data-motion='reduced'] .v2-migrate {
+  transition: none;
+}
+
+/* The Settle (V-M27): post-commitment re-composition — affected elements
+   glide first; the rest follow by --step-i. */
+.v2-settle {
+  transition:
+    transform theme('transitionDuration.settle') theme('transitionTimingFunction.signal-out'),
+    opacity theme('transitionDuration.settle') theme('transitionTimingFunction.signal-out');
+  transition-delay: calc(var(--step-i, 0) * theme('transitionDuration.stagger'));
+}
+
+/* The True Fade (S69/§9): the only sanctioned pure black, T11's ending
+   alone. The scene machine raises data-true-fade on the journey root;
+   the signature then holds ≥3s (choreography, not this law). One plate
+   above the world (halo rests at 40), deaf to the pointer. */
+.v2-true-fade {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  background-color: theme('colors.true-black');
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity theme('transitionDuration.true-fade') theme('transitionTimingFunction.standard'),
+    visibility 0ms linear theme('transitionDuration.true-fade');
+}
+
+[data-true-fade='1'] .v2-true-fade {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0ms, 0ms;
+}
+
+/* ── Cursor element states (V-I58–63 · §16.2–16.4) ───────────────────── */
+
+/* [data-cursor] is the opt-in handle the ReadingLight reads; nothing
+   ships it yet. Acknowledgment lands inside the react band (V-I5). */
+[data-cursor] {
+  transition:
+    color theme('transitionDuration.react') ease-out,
+    background-color theme('transitionDuration.react') ease-out,
+    border-color theme('transitionDuration.react') ease-out;
+}
+
+/* Door warmth: the element answers the approach while the halo
+   concentrates above it; hover and focus are one law (V-I18/I52). */
+[data-cursor='door']:hover,
+[data-cursor='door']:focus-visible {
+  color: var(--v2-accent);
+  border-color: color-mix(in srgb, var(--v2-glow) 55%, transparent);
+}
+
+/* Focus states take the chapter accent, shape + offset twin (V-I51). */
+[data-cursor]:focus-visible {
+  outline: 2px solid var(--v2-accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}

@@ -48,6 +48,8 @@ export const motionDurations = {
   reveal: 1400,
   /** vista — whole spread before any detail moves (V-M64) */
   vista: 1600,
+  /** the True Fade to sanctioned black — ≈2.5s, T11 only (S69/§9) */
+  trueFade: 2500,
   /** caption hold — a holding line owns the stage (V-M63) */
   holdCaption: 4200,
 } as const;
@@ -76,6 +78,8 @@ export const motionEasings = {
   signalOut: 'cubic-bezier(0.16, 1, 0.3, 1)',
   resolveIn: 'cubic-bezier(0.7, 0, 0.2, 1)',
   standard: 'cubic-bezier(0.4, 0, 0.2, 1)',
+  /** weather crossfade — symmetric, so the midpoint is honest (V-C51/C8) */
+  migrate: 'cubic-bezier(0.65, 0, 0.35, 1)',
 } as const;
 
 /** GSAP-spelled easings, one-to-one with `motionEasings` (ARCHITECTURE §6). */
@@ -83,6 +87,7 @@ export const gsapEasings = {
   signalOut: 'expo.out',
   resolveIn: 'power3.inOut',
   standard: 'power2.out',
+  migrate: 'power1.inOut',
 } as const;
 
 /** Utility-class spellings for Tailwind's transitionDuration scale. */
@@ -95,6 +100,15 @@ export const durationClasses = {
   pulse: '900ms',
   /** the Cascade orchestration step (motionStagger.step) */
   stagger: '45ms',
+  /** V2 named moves — one-to-one with `motionDurations` (V-M-III) */
+  migrate: '600ms',
+  mask: '720ms',
+  draw: '1000ms',
+  settle: '1200ms',
+  reveal: '1400ms',
+  vista: '1600ms',
+  'true-fade': '2500ms',
+  hold: '4200ms',
 } as const;
 
 /** Utility-class spellings for Tailwind's transitionTimingFunction scale. */
@@ -102,6 +116,7 @@ export const easeClasses = {
   'signal-out': motionEasings.signalOut,
   'resolve-in': motionEasings.resolveIn,
   standard: motionEasings.standard,
+  migrate: motionEasings.migrate,
 } as const;
 
 export type MotionDuration = keyof typeof motionDurations;

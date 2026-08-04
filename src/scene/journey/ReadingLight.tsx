@@ -17,9 +17,12 @@ import { useEffect, useRef } from 'react';
  *  - presence never leaves the machine (V-I68) — everything here is local.
  *
  * States (V-I58): elements opt in with `data-cursor="read|door|press|hold"`;
- * the nearest annotated ancestor wins. Unmounted by design in Sprint 1 —
- * scenes wire it at their re-skin sprints; the journey's shared presence
- * plumbing remains the single source of pointer truth then.
+ * the nearest annotated ancestor wins. The keyboard is a hand too
+ * (V-I18/I52): on keyboard focus the halo travels to the focused element
+ * and takes its state, so every door's warmth rehearses without a pointer.
+ * Unmounted by design in Sprint 1 — scenes wire it at their re-skin
+ * sprints; the journey's shared presence plumbing remains the single
+ * source of pointer truth then.
  */
 
 /** Per-state halo scale, instant settle (V-I60: no overshoot, no magnetism here). */
@@ -83,15 +86,36 @@ export function ReadingLight(): JSX.Element {
       halo.setAttribute('data-active', 'false');
     };
 
+    /* The keyboard hand (V-I18/I52): focus-visible moves land the halo on
+       the element taking focus, at the annotated state (or plain read). */
+    const onFocusIn = (event: FocusEvent): void => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      if (!target.matches(':focus-visible')) return;
+      state = resolveState(target);
+      halo.setAttribute('data-cursor', state);
+      halo.setAttribute('data-active', 'true');
+      const rect = target.getBoundingClientRect();
+      apply(rect.left + rect.width / 2, rect.top + rect.height / 2);
+    };
+
+    const onFocusOut = (): void => {
+      halo.setAttribute('data-active', 'false');
+    };
+
     window.addEventListener('pointermove', onMove, { passive: true });
     window.addEventListener('pointerdown', onDown, { passive: true });
     window.addEventListener('pointerup', onUp, { passive: true });
+    window.addEventListener('focusin', onFocusIn);
+    window.addEventListener('focusout', onFocusOut);
     document.documentElement.addEventListener('pointerleave', onLeave);
 
     return () => {
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerdown', onDown);
       window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('focusin', onFocusIn);
+      window.removeEventListener('focusout', onFocusOut);
       document.documentElement.removeEventListener('pointerleave', onLeave);
     };
   }, []);
