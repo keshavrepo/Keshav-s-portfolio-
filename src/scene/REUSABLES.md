@@ -68,3 +68,22 @@ native `<details>` disclosure — full content parity, zero JS, crawlable.
   `<chapter-prefix>:<moment>` (`op:*`, `mm:*`, `gm:*`).
 - 44px minimum hit areas; `:focus-visible` ring on every door
   (`.mind-door` CSS law).
+
+## V2 foundation (SPRINT 1 — visual language, PR-01)
+
+Foundation layers every V2 scene mounts in its re-skin sprint. Inert by
+design: nothing below restyles anything that ships today.
+
+| Artifacts                                                | Purpose                                                                                                                                                                                                                                                                                                              |
+| -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `chapterPalettes` + `restingPalette` (`tokens/color.ts`) | The seven chapter color constitutions (field/ink/accent glow+text/gradient) from VISUAL_DESIGN_BIBLE §4 — projected to Tailwind (`chapter-*` utilities) and to live CSS variables `--v2-field/ink/glow/accent/grad-a/grad-b` keyed on `data-chapter` (globals.css). One number, one place.                           |
+| V2 type roles (`tokens/typography.ts`)                   | `display-monument`, `display-hero`, `whisper` — the architecture scale. Existing roles untouched.                                                                                                                                                                                                                    |
+| V2 layout tokens (`tokens/spacing.ts`)                   | `grid-margin`, `grid-gutter-x`, `spread-y`, `chapter-air`, `layoutExtents` (`field-max`, `rail-lower-third`).                                                                                                                                                                                                        |
+| V2 move tokens (`tokens/motion.ts`)                      | `migrate/drawStroke/settleDrift/reveal/vista/holdCaption` durations (scene constants converge here), `motionStagger.step` (45ms, `duration-stagger` projection).                                                                                                                                                     |
+| Kit laws (globals.css)                                   | `.v2-rise` (Mask) · `.v2-resolve` (blur→read, display-tier) · `.v2-draw` (stroke, `--draw-len`) · `.v2-cascade` (`--step-i`) — all gated `.v2-live` under `html[data-js]`, present at rest without JS, instant under reduced motion. Layout: `.v2-field`, `.v2-spread`, `.v2-span-body/exhibit/full`, `.v2-eyebrow`. |
+| `ReadingLight` (`src/scene/journey/ReadingLight.tsx`)    | The cursor reading-light: fixed halo, chapter-tinted via `--v2-glow`, states via `data-cursor` (read/door/press/hold), passive listeners, off on coarse pointers + reduced motion. Unmounted until scene sprints.                                                                                                    |
+| Tailwind keyframes                                       | `mask-rise`, `resolve-in`, `draw-line`, `breath-sway` (`animate-*` utilities).                                                                                                                                                                                                                                       |
+
+Laws carried: accent glow-tier is display-only, text-tier for labels
+(V-C48); furniture stays hueless (V-C72); animated tracking remains banned
+(V-M36); every kit law ships its reduced twin in the same CSS gate.

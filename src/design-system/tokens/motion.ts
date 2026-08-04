@@ -29,6 +29,35 @@ export const motionDurations = {
   suspense: 1750,
   /** slow ambient breath for living surfaces */
   breath: 3600,
+
+  /**
+   * V2 named-move vocabulary (VISUAL_DESIGN_BIBLE §7 · V-M-III). Durations
+   * already proved at scene time are tokenized here so the kit and the
+   * scenes cite one number; scene-local constants converge onto these in
+   * their re-skin sprints.
+   */
+  /** full-field color migration — at or above the 600ms floor (V-C8/C80) */
+  migrate: 600,
+  /** the Mask: line rise from below the baseline, anchored (V-M22) */
+  mask: 720,
+  /** the Draw base stroke time — scales with drawn length (V-M24) */
+  drawStroke: 1000,
+  /** the Settle glide: post-commitment re-composition step (V-M27) */
+  settleDrift: 1200,
+  /** story reveals — the manifest entrance budget (V-M65) */
+  reveal: 1400,
+  /** vista — whole spread before any detail moves (V-M64) */
+  vista: 1600,
+  /** caption hold — a holding line owns the stage (V-M63) */
+  holdCaption: 4200,
+} as const;
+
+/**
+ * V2 orchestration step (V-M18/M30): Cascade stagger lives 30–60ms; below
+ * is a blur, above is a queue.
+ */
+export const motionStagger = {
+  step: 45,
 } as const;
 
 export const motionBounds = {
@@ -64,6 +93,8 @@ export const durationClasses = {
   state: '420ms',
   enter: '720ms',
   pulse: '900ms',
+  /** the Cascade orchestration step (motionStagger.step) */
+  stagger: '45ms',
 } as const;
 
 /** Utility-class spellings for Tailwind's transitionTimingFunction scale. */

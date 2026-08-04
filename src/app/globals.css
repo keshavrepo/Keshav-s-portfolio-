@@ -284,3 +284,232 @@
     }
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PROJECT K V2 — VISUAL FOUNDATION (SPRINT 1)
+   Token projection + shared kit laws. Inert until scenes mount the kit:
+   no selector below restyles anything that ships today. Gates obey the
+   same laws as V1 (html[data-js] pacing, data-motion, media query).
+
+   Emitted outside @layer by design: Tailwind tree-shakes unused rules in
+   every @layer block and the kit must survive until scenes adopt it
+   (`.v2-cursor-halo` proved the purge — it lived only because
+   ReadingLight.tsx references it).
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/*
+ * Chapter color constitutions as live CSS variables (V-C8/C80): the
+ * journey root already carries data-chapter; the foundation hooks it
+ * with CSS alone — zero scene files touched. Arrival phases and
+ * pre-journey surfaces inherit the resting palette (V-C65).
+ */
+:root {
+  --v2-field: theme('colors.chapter.rest-field');
+  --v2-ink: theme('colors.chapter.rest-ink');
+  --v2-glow: theme('colors.chapter.rest-glow');
+  --v2-accent: theme('colors.chapter.rest-accent');
+  --v2-grad-a: theme('colors.chapter.rest-grad-a');
+  --v2-grad-b: theme('colors.chapter.rest-grad-b');
+}
+
+[data-chapter='opening'] {
+  --v2-field: theme('colors.chapter.opening-field');
+  --v2-ink: theme('colors.chapter.opening-ink');
+  --v2-glow: theme('colors.chapter.opening-glow');
+  --v2-accent: theme('colors.chapter.opening-accent');
+  --v2-grad-a: theme('colors.chapter.opening-grad-a');
+  --v2-grad-b: theme('colors.chapter.opening-grad-b');
+}
+
+[data-chapter='mind'] {
+  --v2-field: theme('colors.chapter.mind-field');
+  --v2-ink: theme('colors.chapter.mind-ink');
+  --v2-glow: theme('colors.chapter.mind-glow');
+  --v2-accent: theme('colors.chapter.mind-accent');
+  --v2-grad-a: theme('colors.chapter.mind-grad-a');
+  --v2-grad-b: theme('colors.chapter.mind-grad-b');
+}
+
+[data-chapter='grammar'] {
+  --v2-field: theme('colors.chapter.grammar-field');
+  --v2-ink: theme('colors.chapter.grammar-ink');
+  --v2-glow: theme('colors.chapter.grammar-glow');
+  --v2-accent: theme('colors.chapter.grammar-accent');
+  --v2-grad-a: theme('colors.chapter.grammar-grad-a');
+  --v2-grad-b: theme('colors.chapter.grammar-grad-b');
+}
+
+[data-chapter='universe'] {
+  --v2-field: theme('colors.chapter.universe-field');
+  --v2-ink: theme('colors.chapter.universe-ink');
+  --v2-glow: theme('colors.chapter.universe-glow');
+  --v2-accent: theme('colors.chapter.universe-accent');
+  --v2-grad-a: theme('colors.chapter.universe-grad-a');
+  --v2-grad-b: theme('colors.chapter.universe-grad-b');
+}
+
+/* The Decision constitution is keyed to the journey's engine phase (V-C31). */
+[data-chapter='engine'] {
+  --v2-field: theme('colors.chapter.decision-field');
+  --v2-ink: theme('colors.chapter.decision-ink');
+  --v2-glow: theme('colors.chapter.decision-glow');
+  --v2-accent: theme('colors.chapter.decision-accent');
+  --v2-grad-a: theme('colors.chapter.decision-grad-a');
+  --v2-grad-b: theme('colors.chapter.decision-grad-b');
+}
+
+[data-chapter='impact'] {
+  --v2-field: theme('colors.chapter.impact-field');
+  --v2-ink: theme('colors.chapter.impact-ink');
+  --v2-glow: theme('colors.chapter.impact-glow');
+  --v2-accent: theme('colors.chapter.impact-accent');
+  --v2-grad-a: theme('colors.chapter.impact-grad-a');
+  --v2-grad-b: theme('colors.chapter.impact-grad-b');
+}
+
+[data-chapter='future'] {
+  --v2-field: theme('colors.chapter.future-field');
+  --v2-ink: theme('colors.chapter.future-ink');
+  --v2-glow: theme('colors.chapter.future-glow');
+  --v2-accent: theme('colors.chapter.future-accent');
+  --v2-grad-a: theme('colors.chapter.future-grad-a');
+  --v2-grad-b: theme('colors.chapter.future-grad-b');
+}
+
+/* ── The kit laws (named moves, V-M-III) ─────────────────────────────── */
+
+/* The Mask (V-M22/V-M32): parents clip; the machine adds .v2-live on
+   the beat. Without JS every word is simply present (semantic floor). */
+.v2-mask {
+  overflow: hidden;
+}
+
+.v2-rise {
+  transition:
+    opacity theme('transitionDuration.enter') theme('transitionTimingFunction.signal-out'),
+    transform theme('transitionDuration.enter') theme('transitionTimingFunction.signal-out');
+}
+
+html[data-js='1'] .v2-rise:not(.v2-live) {
+  opacity: 0;
+  transform: translateY(38%) rotate(3deg);
+}
+
+/* The Resolve (V-M25): blurred scatter → sharp read; display-tier only
+   (filter cost is a solo's privilege). */
+.v2-resolve {
+  transition:
+    opacity theme('transitionDuration.enter') theme('transitionTimingFunction.signal-out'),
+    filter theme('transitionDuration.enter') theme('transitionTimingFunction.signal-out'),
+    transform theme('transitionDuration.enter') theme('transitionTimingFunction.signal-out');
+}
+
+html[data-js='1'] .v2-resolve:not(.v2-live) {
+  opacity: 0;
+  filter: blur(8px);
+  transform: scale(1.02);
+}
+
+/* The Draw (V-M24): each stroke declares --draw-len; the machine adds
+   .v2-live. Without JS the stroke is simply present. */
+.v2-draw {
+  stroke-dasharray: var(--draw-len, 100);
+}
+
+html[data-js='1'] .v2-draw:not(.v2-live) {
+  stroke-dashoffset: var(--draw-len, 100);
+}
+
+.v2-draw.v2-live {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset theme('transitionDuration.enter')
+    theme('transitionTimingFunction.standard');
+}
+
+/* The Cascade (V-M30/M18): children set --step-i; the step is a token. */
+.v2-cascade > * {
+  animation-delay: calc(var(--step-i, 0) * theme('transitionDuration.stagger'));
+  transition-delay: calc(var(--step-i, 0) * theme('transitionDuration.stagger'));
+}
+
+/* ── Shared layout + furniture utilities (V-L-II/L-III) ──────────────── */
+
+/* The content field: capped, centered, breathing the grid margin. */
+.v2-field {
+  margin-inline: auto;
+  max-width: theme('maxWidth.field');
+  padding-inline: theme('spacing.grid-margin');
+}
+
+/* The spread: twelve columns, gutters from tokens (§10.1). */
+.v2-spread {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: theme('spacing.grid-gutter-x');
+}
+
+/* Column castes (§10.2): body measure 6, exhibit 8, hero full. */
+.v2-span-body {
+  grid-column: 4 / span 6;
+}
+
+.v2-span-exhibit {
+  grid-column: 3 / span 8;
+}
+
+.v2-span-full {
+  grid-column: 1 / -1;
+}
+
+/* The eyebrow: location furniture on the margin rail — caps, hueless
+   (V-T66/V-C72: furniture locates, it never decorates). */
+.v2-eyebrow {
+  font-size: theme('fontSize.eyebrow.0');
+  line-height: theme('fontSize.eyebrow.1.lineHeight');
+  letter-spacing: theme('fontSize.eyebrow.1.letterSpacing');
+  font-weight: theme('fontSize.eyebrow.1.fontWeight');
+  text-transform: uppercase;
+  opacity: 0.72;
+}
+
+/* ── The reading light: cursor system (V-I56–V-I70) ──────────────────── */
+
+/*
+ * A soft, chapter-tinted halo: attention made visible. Position and
+ * scale are written by ReadingLight directly to this node's transform
+ * (zero React renders); CSS owns alpha, blend, and the state's fade.
+ */
+.v2-cursor-halo {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 360px; /* V-I57: radius ≤240px → 360px soft-edged disc */
+  height: 360px;
+  border-radius: 9999px;
+  pointer-events: none;
+  z-index: 40;
+  opacity: 0;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--v2-glow) 22%, transparent),
+    transparent 68%
+  );
+  transition: opacity theme('transitionDuration.ui') ease-out;
+  will-change: transform;
+}
+
+.v2-cursor-halo[data-active='true'] {
+  opacity: 1;
+}
+
+@media (pointer: coarse) {
+  .v2-cursor-halo {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .v2-cursor-halo {
+    display: none;
+  }
+}
