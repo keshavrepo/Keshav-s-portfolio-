@@ -3,8 +3,8 @@ import { motionBounds } from '@/design-system/tokens';
 /**
  * The seven locked chapters as data (ARCHITECTURE §8) — story facts live
  * here so no scene component ever hardcodes one. Slugs are permanent
- * promises (NR-14). The express-lane and full-journey totals below are the
- * locked SPEC-003 numbers, drawn from the token bounds (verified unchanged).
+ * promises (NR-14). Locked beats draw from the token bounds (verified
+ * unchanged against SPEC-003).
  */
 export interface ChapterLock {
   id: ChapterId;
@@ -73,19 +73,8 @@ export const CHAPTERS: readonly ChapterLock[] = [
   { id: 'future', order: 6, slug: '/future', title: 'Chapter Six — The Future' },
 ] as const;
 
-export const JOURNEY_TOTALS = {
-  expressLaneMs: motionBounds.expressLaneTotal,
-  fullJourneyMs: motionBounds.fullJourney,
-} as const;
-
 export function getChapter(id: ChapterId): ChapterLock {
   const chapter = CHAPTERS.find((c) => c.id === id);
   if (!chapter) throw new Error(`Unknown chapter: ${id}`);
-  return chapter;
-}
-
-export function getChapterByOrder(order: number): ChapterLock {
-  const chapter = CHAPTERS.find((c) => c.order === order);
-  if (!chapter) throw new Error(`Unknown chapter order: ${order}`);
   return chapter;
 }

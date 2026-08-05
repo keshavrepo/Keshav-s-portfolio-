@@ -61,10 +61,6 @@ export const openingBeats = {
   blackHoldMs: 900,
 } as const;
 
-/** Milliseconds from dive start to the afterglow. */
-export const diveToAfterglowMs =
-  motionDurations.dive + openingBeats.warmOutMs + openingBeats.blackHoldMs;
-
 if (process.env.NODE_ENV !== 'production') {
   const [diveMin, diveMax] = motionBounds.dive;
   if (motionDurations.dive < diveMin || motionDurations.dive > diveMax) {
