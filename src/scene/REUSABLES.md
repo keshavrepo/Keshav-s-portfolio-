@@ -114,3 +114,22 @@ bounded (IO-armed loops, passive listeners, unmount-clears-everything).
 | `ReadyGate` / `useDocumentReady`                                          | Premium loading sequence: fonts + load, capped at the 1000ms first-paint budget (ER-1); a class flip, never a fork — no hydration flash.                                                                                                                                                                                                                              |
 | `Door` / `LinkLine`                                                       | Interaction layer: doors (≥44px, `data-cursor=door`, locked-state, keyboard-identical) and inline links whose underline draws on hover ≡ focus (V-I18). Cursor hover/focus/press states: kit CSS in globals.css ([data-cursor] laws); `ReadingLight` is wired in JourneyRoot (PR-02 cursor wiring) — chapter-tinted halo, focus-travels, off coarse/reduced/semantic. |
 | `Rig` (`src/core/three/rig.tsx`)                                          | Reusable WebGL presence rig: breath-tempo float (≤2% amplitude), damped pointer lean (60% vertical bias, no overshoot λ4), still under reduced motion. Mounts inside CanvasHost (demand frameloop, dpr-clamped). The journey camera keeps its authored damping — that is its choreography.                                                                            |
+
+## V2 identity layer (SPRINT 3 — Business Analyst, PR-gap)
+
+The portfolio reads as a Business Analyst before any title: metadata and
+JSON-LD declare the expertise (`site.expertise` — one list feeding
+`keywords` + `knowsAbout`); the social card is the claim itself in the
+Statement voice (`src/app/og-card.tsx` → `opengraph-image` /
+`twitter-image` — static default-cut TTF instances emitted by
+`scripts/sync-fonts.mjs` via fonteditor-core, hermetic like every face).
+Every 3D asset stays story-owned (audited this sprint: neuron = the
+premise; mindscape = thinking; universe = the business ecosystem
+flywheel; engine = decision + staged consequences — all earn their
+geometry, none is decoration).
+
+| Artifact                                                            | Purpose                                                                                                                                                                                                                                                                                               |
+| ------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `BusinessCase` + `CASE_STAGES` (`casebook/business-case.ts`)        | Work is presented as business cases, not software: twelve ordered stages (Business Context → … → Business Impact → Lessons Learned) mirroring the story's SENSE→STRUCTURE→WEIGH→DECIDE circuits extended to execution and lessons. A case that can't fill a stage honestly isn't finished.            |
+| `CaseStudy` (`casebook/CaseStudy.tsx`)                              | The dossier presentation: numbered stage eyebrows, editorial prose, ONE accent rail reserved for the Decision, tabular impact numerals cascaded (IR-35), em-dash lessons. MaskReveal-paced; SSR carries the complete semantic document. Mounts at the casebook surface (Problem Room chapter, PR-04). |
+| `FigureChain` / `FigureFork` / `FigureLoop` (`figures/Figures.tsx`) | The analyst's small visual grammar: value chains / customer journeys, decision forks, growth loops — semantic lists first (AT reads the reasoning), measured drawn threads second (the Draw means causality), ember reserved for the loop's return leg. Re-measured on resize; SSR is list-only.      |

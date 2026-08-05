@@ -30,6 +30,8 @@ export interface DrawLineProps {
   live?: boolean;
   /** Auto drive: draw once (default) or re-arm on exit. */
   once?: boolean;
+  /** Measured-figure callers pass "none" so px-mapped strokes never letterbox. */
+  preserveAspectRatio?: string;
 }
 
 const ARM_THRESHOLD = 0.35;
@@ -40,11 +42,13 @@ export function DrawLine({
   children,
   live,
   once = true,
+  preserveAspectRatio,
 }: DrawLineProps): JSX.Element {
   const svgRef = useRef<SVGSVGElement>(null);
   const armedRef = useRef(false);
 
-  /* Measure before gating: --draw-len is each stroke's own truth. */
+  /* Measure before gating: --draw-len is each stroke's own truth.
+     Re-measures when geometry changes (figures re-lay their paths). */
   useEffect(() => {
     const svg = svgRef.current;
     if (!svg) return;
@@ -55,7 +59,7 @@ export function DrawLine({
         path.classList.add('v2-draw');
       }
     });
-  }, []);
+  }, [children]);
 
   useEffect(() => {
     const svg = svgRef.current;
@@ -85,7 +89,13 @@ export function DrawLine({
   }, [live, once]);
 
   return (
-    <svg ref={svgRef} viewBox={viewBox} className={cn(className)} aria-hidden="true">
+    <svg
+      ref={svgRef}
+      viewBox={viewBox}
+      preserveAspectRatio={preserveAspectRatio}
+      className={cn(className)}
+      aria-hidden="true"
+    >
       {children}
     </svg>
   );

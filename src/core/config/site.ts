@@ -12,6 +12,17 @@ export const site = {
   claimLine2: 'I enjoy understanding them.',
   description:
     'Every business has problems. I enjoy understanding them. The portfolio of Keshav Choudhary, Business Analyst — problems understood, decisions made, impact measured.',
+  /** The analyst's territory — one list feeding search metadata and JSON-LD. */
+  expertise: [
+    'Business Strategy',
+    'Decision-Making',
+    'Analytical Thinking',
+    'Systems Thinking',
+    'Business Intelligence',
+    'Market Analysis',
+    'Product Strategy',
+    'Problem Solving',
+  ],
   url: env.NEXT_PUBLIC_SITE_URL,
   locale: 'en_IN',
   lang: 'en',

@@ -18,7 +18,8 @@ export const metadata: Metadata = {
   applicationName: site.name,
   authors: [{ name: site.owner }],
   creator: site.owner,
-  category: 'portfolio',
+  category: 'business',
+  keywords: [...site.expertise],
   alternates: { canonical: '/' },
   openGraph: {
     type: 'website',
@@ -29,10 +30,20 @@ export const metadata: Metadata = {
     description: site.description,
   },
   twitter: {
-    card: 'summary',
+    card: 'summary_large_image',
     title: site.name,
     description: site.description,
   },
+};
+
+const personJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: site.owner,
+  jobTitle: site.role,
+  url: site.url,
+  knowsAbout: site.expertise,
+  description: `${site.claimLine1} ${site.claimLine2}`,
 };
 
 export const viewport: Viewport = {
@@ -43,15 +54,6 @@ export const viewport: Viewport = {
     { media: '(prefers-color-scheme: dark)', color: colorTokens.ink['950'] },
     { media: '(prefers-color-scheme: light)', color: colorTokens.paper['50'] },
   ],
-};
-
-const personJsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'Person',
-  name: site.owner,
-  jobTitle: site.role,
-  url: site.url,
-  description: `${site.claimLine1} ${site.claimLine2}`,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -75,6 +75,8 @@ export interface KineticTextProps {
   /** Manual drive. */
   live?: boolean;
   as?: 'span' | 'p' | 'h1' | 'h2' | 'h3' | 'div';
+  /** Element id — headings that are labelled-by targets need one. */
+  id?: string;
   className?: string;
   /** Called after a one-shot reveal settles back into plain text. */
   onSettled?: () => void;
@@ -100,6 +102,7 @@ export const KineticText = forwardRef<KineticTextHandle, KineticTextProps>(funct
     once = true,
     live,
     as = 'span',
+    id,
     className,
     onSettled,
   },
@@ -253,7 +256,7 @@ export const KineticText = forwardRef<KineticTextHandle, KineticTextProps>(funct
   if (settled) {
     const SettledTag = as;
     return (
-      <SettledTag ref={rootRef as never} className={cn(className)}>
+      <SettledTag ref={rootRef as never} id={id} className={cn(className)}>
         {text}
       </SettledTag>
     );
@@ -272,7 +275,7 @@ export const KineticText = forwardRef<KineticTextHandle, KineticTextProps>(funct
   /* Measured line masks: one mask, one riser, the line's real text. */
   if (mode === 'lines' && lines !== null) {
     return (
-      <Tag ref={rootRef as never} className={containerClasses} aria-label={text}>
+      <Tag ref={rootRef as never} id={id} className={containerClasses} aria-label={text}>
         {lines.map((line, i) => (
           <span
             key={line.join(' ')}
@@ -290,7 +293,7 @@ export const KineticText = forwardRef<KineticTextHandle, KineticTextProps>(funct
   if (mode === 'chars') {
     let step = 0;
     return (
-      <Tag ref={rootRef as never} className={containerClasses} aria-label={text}>
+      <Tag ref={rootRef as never} id={id} className={containerClasses} aria-label={text}>
         {tokens.map((token, index) =>
           index % 2 === 0 ? (
             Array.from(token).map((char) => {
@@ -316,7 +319,7 @@ export const KineticText = forwardRef<KineticTextHandle, KineticTextProps>(funct
   }
 
   return (
-    <Tag ref={rootRef as never} className={containerClasses} aria-label={text}>
+    <Tag ref={rootRef as never} id={id} className={containerClasses} aria-label={text}>
       {tokens.map((token, index) =>
         index % 2 === 0 ? (
           <span
