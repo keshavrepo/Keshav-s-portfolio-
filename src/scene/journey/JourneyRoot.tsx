@@ -51,6 +51,7 @@ import {
   type JourneyPhase,
 } from './journey-machine';
 import { JourneyCanvas } from './JourneyCanvas';
+import { ReadingLight } from './ReadingLight';
 import { usePointerPresence } from './use-pointer-presence';
 import { useScheduler } from './use-scheduler';
 
@@ -743,6 +744,11 @@ export function JourneyRoot() {
             </>
           ) : null}
         </div>
+
+        {/* The reading light (V2 §16): attention made visible, tinted by
+            the chapter constitution (data-chapter). Cosmetic only — every
+            reveal stays reachable without it (V-I56). */}
+        <ReadingLight />
       </div>
 
       {/* The live region is the story for visitors who cannot see it. */}

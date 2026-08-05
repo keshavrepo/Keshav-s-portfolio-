@@ -21,6 +21,13 @@ export const layoutSpacing = {
   'spread-y': 'clamp(6rem, 3rem + 9.375vw, 12.5rem)',
   /** chapter-crossing breath above the Migration's field change */
   'chapter-air': 'clamp(8rem, 4rem + 12.5vw, 16rem)',
+  /**
+   * The depth drift (§7 row 9: the Breath oscillates ≤2% of scale/space):
+   * 2% of the 96rem field ≈ 1.92rem, rounded to the 4px scale. This is the
+   * full lawful amplitude for layered depth — the V2 twin of parallax,
+   * kept inside the banned-stack law (V-M banned species).
+   */
+  'depth-drift': '2rem',
 } as const;
 
 /**

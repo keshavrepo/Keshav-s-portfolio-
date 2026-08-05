@@ -398,6 +398,15 @@ html[data-js='1'] .v2-draw:not(.v2-live) {
   transition-delay: calc(var(--step-i, 0) * theme('transitionDuration.stagger'));
 }
 
+/* Cascade gating: kit-gated children (risers, masked or bare) wait on the
+   cascade's own .v2-live — one conductor, staggered instruments. Once the
+   cascade is live its risers answer to it, not to their own state. */
+html[data-js='1'] .v2-cascade.v2-live > .v2-rise:not(.v2-live),
+html[data-js='1'] .v2-cascade.v2-live > .v2-mask > .v2-rise:not(.v2-live) {
+  opacity: 1;
+  transform: none;
+}
+
 /* ── Shared layout + furniture utilities (V-L-II/L-III) ──────────────── */
 
 /* The content field: capped, centered, breathing the grid margin. */
@@ -684,4 +693,156 @@ html[data-motion='reduced'] .v2-migrate {
   outline: 2px solid var(--v2-accent);
   outline-offset: 3px;
   border-radius: 2px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   V2 CINEMATIC LAYER (SPRINT 2) — kit laws for the reusable primitives
+   in src/scene/cinema/. Same gates, same covenant: hidden only when
+   JavaScript lives, present without it, instant under reduced motion.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* The Units (§7 row 10, maskless Cascade): word/character staging where
+   clipping would fight the composition. Rise is em-scaled inside the
+   Mask law's 24–40% band (V-M22). */
+.v2-units > * {
+  display: inline-block;
+  transition:
+    opacity theme('transitionDuration.enter') theme('transitionTimingFunction.signal-out'),
+    transform theme('transitionDuration.enter') theme('transitionTimingFunction.signal-out');
+  transition-delay: calc(var(--step-i, 0) * theme('transitionDuration.stagger'));
+}
+
+html[data-js='1'] .v2-units:not(.v2-live) > * {
+  opacity: 0;
+  transform: translateY(0.38em);
+}
+
+/* Progressive drives (scroll-driven typography): the container is always
+   live — each unit crosses on its own threshold, forward AND in reverse
+   (crossings un-cross honestly, §9.ii). Component law: a progressive
+   container never receives .v2-live; units own the state. */
+html[data-js='1'] .v2-split.v2-progressive:not(.v2-live) > * > * {
+  opacity: 1;
+  transform: none;
+}
+
+html[data-js='1'] .v2-split.v2-progressive > *:not(.v2-live) > * {
+  opacity: 0;
+  transform: translateY(38%) rotate(3deg);
+}
+
+html[data-js='1'] .v2-units.v2-progressive:not(.v2-live) > * {
+  opacity: 1;
+  transform: none;
+}
+
+html[data-js='1'] .v2-units.v2-progressive > *:not(.v2-live) {
+  opacity: 0;
+  transform: translateY(0.38em);
+}
+
+/* Progressive drives are direct manipulation: units answer the scroll
+   the instant they cross — the stagger delay would read as lag. */
+html[data-js='1'] .v2-split.v2-progressive > * > *,
+html[data-js='1'] .v2-units.v2-progressive > * {
+  transition-delay: 0ms;
+}
+
+/* Line-split measuring (KineticText mode="lines"): a whole-line veil
+   while the engine groups measured lines. Opacity-only — AT still reads
+   the complete text at every instant. */
+html[data-js='1'] .v2-lines-await {
+  opacity: 0;
+}
+
+/* The Acts (§7 row 3 signature use — rotating-word/text-replace acts):
+   phrases stack in one grid cell (the widest sizes the frame — zero
+   layout shift); only the active phrase is present to eye and pointer. */
+.v2-act > * {
+  transition:
+    opacity theme('transitionDuration.state') theme('transitionTimingFunction.signal-out'),
+    transform theme('transitionDuration.state') theme('transitionTimingFunction.signal-out');
+}
+
+.v2-act > *:not([data-active='true']) {
+  opacity: 0;
+  transform: translateY(0.38em);
+  user-select: none;
+  pointer-events: none;
+}
+
+/* The Door (§8.2): a typographic actor — ≥44px target, press answers
+   inside the react band (V-I28), the locked segment sits at rest with
+   reduced contrast (never a dead control). */
+.v2-door {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  min-width: 44px;
+  transition: transform theme('transitionDuration.react') ease-out;
+}
+
+.v2-door:active {
+  transform: scale(0.97);
+}
+
+.v2-door[data-locked='true'] {
+  opacity: 0.55;
+}
+
+/* The underline Draw (§7 row 4's underline case, V-M24): a stroke that
+   draws itself on hover and focus alike (V-I18). Background-carried, so
+   the line box never shifts. */
+.v2-linkline {
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 1px;
+  padding-bottom: 0.08em;
+  transition: background-size theme('transitionDuration.state')
+    theme('transitionTimingFunction.signal-out');
+}
+
+.v2-linkline:hover,
+.v2-linkline:focus-visible {
+  background-size: 100% 1px;
+}
+
+/* The Veil (§9, the Wipe): premium page/segment passage along the
+   reading gravity. cover grows left→right; reveal drains onward in the
+   same direction — one gravity, both ways. Parked it is invisible and
+   transitionless, so the reset costs nothing. */
+.v2-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  pointer-events: none;
+  visibility: hidden;
+  background-color: var(--v2-field);
+  clip-path: inset(0 100% 0 0);
+}
+
+[data-veil='covering'] .v2-veil {
+  visibility: visible;
+  clip-path: inset(0 0 0 0);
+  transition: clip-path theme('transitionDuration.migrate')
+    theme('transitionTimingFunction.signal-out');
+}
+
+[data-veil='covered'] .v2-veil {
+  visibility: visible;
+  clip-path: inset(0 0 0 0);
+}
+
+[data-veil='revealing'] .v2-veil {
+  visibility: visible;
+  clip-path: inset(0 0 0 100%);
+  transition: clip-path theme('transitionDuration.migrate')
+    theme('transitionTimingFunction.signal-out');
+}
+
+html[data-motion='reduced'] .v2-veil {
+  transition: none;
 }
