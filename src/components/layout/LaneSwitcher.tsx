@@ -19,6 +19,9 @@ const LANE_LABELS: Record<Lane, string> = {
 export function LaneSwitcher() {
   const { lane, defaultLane, override, setOverride } = useLane();
 
+  /* Micro-furniture sizes: 44px targets (S5), 11px caps just under the
+     eyebrow token with its own 0.14em tracking (V-T66 — furniture locates,
+     it never decorates). */
   const optionClass = (active: boolean) =>
     cn(
       'min-h-[44px] rounded-full px-3 py-1 text-[11px] font-medium uppercase tracking-[0.14em] transition-colors duration-ui ease-standard',

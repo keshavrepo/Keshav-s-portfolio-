@@ -27,9 +27,12 @@ export function SiteFooter({ surface }: { surface: Surface }) {
       </Text>
       <LaneSwitcher />
       {contactEmail ? (
+        /* The real door: the Draw underline (§7 row 4), focus ring intact,
+           44px target (S5). */
         <a
           href={`mailto:${contactEmail}`}
-          className="min-h-[44px] rounded-sm px-1 text-caption underline decoration-ember-600/60 underline-offset-4 outline-none transition-colors duration-ui ease-standard hover:decoration-ember-600"
+          className="v2-linkline inline-flex min-h-[44px] items-center rounded-sm px-1 text-caption"
+          data-cursor="door"
         >
           {contactEmail}
         </a>

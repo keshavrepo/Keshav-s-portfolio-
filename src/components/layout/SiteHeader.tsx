@@ -21,8 +21,9 @@ export function SiteHeader({ surface }: { surface: Surface }) {
     >
       <Link
         href="/"
-        className="rounded-sm text-sm font-medium tracking-[0.18em] outline-none"
+        className="rounded-sm text-sm font-medium tracking-[0.18em]"
         aria-label={`${site.owner} — home`}
+        data-cursor="door"
       >
         {site.owner.toUpperCase()}
       </Link>

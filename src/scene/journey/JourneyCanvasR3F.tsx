@@ -5,6 +5,7 @@ import { useCallback } from 'react';
 import * as THREE from 'three';
 
 import { CanvasHost } from '@/core/three/CanvasHost';
+import { colorTokens } from '@/design-system/tokens';
 import GrammarField from '@/scene/grammar/GrammarField';
 import { GrammarProjector } from '@/scene/grammar/GrammarProjector';
 import MindscapeField from '@/scene/mindscape/MindscapeField';
@@ -28,7 +29,8 @@ export default function JourneyCanvasR3F() {
 
   const handleCreated = useCallback((state: RootState) => {
     // Fog is the world's idea of infinity: depth melts, it never ends.
-    state.scene.fog = new THREE.Fog('#120F0C', 10, 42);
+    // (ink-950 by token — one number, one place, even inside WebGL.)
+    state.scene.fog = new THREE.Fog(colorTokens.ink['950'], 10, 42);
     state.gl.compile(state.scene, state.camera);
   }, []);
 

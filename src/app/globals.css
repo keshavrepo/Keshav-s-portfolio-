@@ -6,6 +6,8 @@
   html {
     color-scheme: light;
     text-size-adjust: 100%;
+    /* No webby gray tap flash — focus rings carry the assurance. */
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {
@@ -14,6 +16,8 @@
       'kern' 1,
       'liga' 1,
       'calt' 1;
+    /* The variable faces are complete — a browser may never fake them. */
+    font-synthesis: none;
     text-rendering: optimizeLegibility;
   }
 
@@ -773,14 +777,20 @@ html[data-js='1'] .v2-lines-await {
 
 /* The Door (§8.2): a typographic actor — ≥44px target, press answers
    inside the react band (V-I28), the locked segment sits at rest with
-   reduced contrast (never a dead control). */
+   reduced contrast (never a dead control). The full channel list repeats
+   here on purpose (CSS transitions replace, never merge): color warmth
+   and the press contraction must ease together. */
 .v2-door {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-height: 44px;
   min-width: 44px;
-  transition: transform theme('transitionDuration.react') ease-out;
+  transition:
+    color theme('transitionDuration.react') ease-out,
+    background-color theme('transitionDuration.react') ease-out,
+    border-color theme('transitionDuration.react') ease-out,
+    transform theme('transitionDuration.react') ease-out;
 }
 
 .v2-door:active {
@@ -845,4 +855,46 @@ html[data-js='1'] .v2-lines-await {
 
 html[data-motion='reduced'] .v2-veil {
   transition: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SPRINT 4 — craft layer (CD review). Invisible premium: typographic
+   widows and optical edge quality enforced globally; assistive gates the
+   decoration cannot survive.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Display type sets like a headline, never a runaway (text-wrap:
+   balance — the typographer's own choice, applied before first paint so
+   no line ever jumps after hydration). */
+.text-display-monument,
+.text-display-hero,
+.text-display-xl,
+.text-display-lg,
+.text-display-md,
+.text-headline,
+.v2-monument,
+.v2-hero {
+  text-wrap: balance;
+}
+
+/* Reading type avoids widows (V-T craft: "no widows at display" extended
+   to the whole house). */
+.text-lede,
+.text-body,
+.text-body-sm,
+.text-caption,
+.text-figure,
+.text-whisper,
+.v2-editorial,
+.v2-whisper,
+.v2-measure,
+.v2-eyebrow {
+  text-wrap: pretty;
+}
+
+/* Windows high-contrast users get the truth, not the decoration. */
+@media (forced-colors: active) {
+  .v2-cursor-halo {
+    display: none;
+  }
 }
